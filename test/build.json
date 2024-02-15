@@ -1,0 +1,79 @@
+[
+    {
+        "name": "test-project1",
+        "source": "test/data/test-project1/index.html",
+        "additional": [],
+        "exec": [
+            [
+                "",
+                [
+                    "ls",
+                    "-hl",
+                    "$"
+                ]
+            ],
+            [
+                "windows",
+                [
+                    "TYPE",
+                    "$"
+                ]
+            ]
+        ],
+        "replace": [
+            {
+                "to": "test/out/en/p1/index.html",
+                "replace": [],
+                "additional": [
+                    "none"
+                ],
+                "exec": [
+                    [
+                        "",
+                        [
+                            "cat",
+                            "$"
+                        ]
+                    ],
+                    [
+                        "windows",
+                        [
+                            "TYPE",
+                            "$"
+                        ]
+                    ]
+                ]
+            },
+            {
+                "to": "test/out/zh/p1/index.html",
+                "replace": [
+                    {
+                        "search": "Welcome!",
+                        "replace": "欢迎!"
+                    },
+                    {
+                        "search": "Kagurazaka Yashi",
+                        "replace": "神楽坂雅詩"
+                    }
+                ],
+                "additional": [],
+                "exec": []
+            },
+            {
+                "to": "test/out/ja/p1/index.html",
+                "replace": [
+                    {
+                        "search": "Welcome!",
+                        "replace": "ようこそ!"
+                    },
+                    {
+                        "search": "Kagurazaka Yashi",
+                        "replace": "かぐらざか みやび"
+                    }
+                ],
+                "additional": [],
+                "exec": []
+            }
+        ]
+    }
+]
