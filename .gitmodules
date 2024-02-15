@@ -1,0 +1,6 @@
+[submodule "test/data/test-project3"]
+	path = test/data/test-project3
+	url = https://github.com/masae-project/typescript-web-template.git
+[submodule "test/data/test-project4"]
+	path = test/data/test-project4
+	url = https://github.com/masae-project/typescript-web-template.git
