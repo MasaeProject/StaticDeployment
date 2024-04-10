@@ -40,12 +40,14 @@
                 "to": "test/out/zh/p1/index.html",
                 "replace": [
                     {
-                        "search": "Welcome!",
-                        "replace": "欢迎!"
+                        "old": "Welcome!",
+                        "new": "欢迎!",
+                        "num": 1
                     },
                     {
-                        "search": "Kagurazaka Yashi",
-                        "replace": "神楽坂雅詩"
+                        "old": "Kagurazaka Yashi",
+                        "new": "神楽坂雅詩",
+                        "num": -1
                     }
                 ],
                 "additional": [],
@@ -55,12 +57,14 @@
                 "to": "test/out/ja/p1/index.html",
                 "replace": [
                     {
-                        "search": "Welcome!",
-                        "replace": "ようこそ!"
+                        "old": "Welcome!",
+                        "new": "ようこそ!",
+                        "num": 1
                     },
                     {
-                        "search": "Kagurazaka Yashi",
-                        "replace": "かぐらざか みやび"
+                        "old": "Kagurazaka Yashi",
+                        "new": "かぐらざか みやび",
+                        "num": -1
                     }
                 ],
                 "additional": [],

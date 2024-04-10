@@ -2,32 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 )
 
-type Project struct {
-	Name       string        `json:"name"`
-	Source     string        `json:"source"`
-	Additional []string      `json:"additional"`
-	Exec       [][]string    `json:"exec"`
-	Replace    []ReplaceItem `json:"replace"`
-}
-
-type ReplaceItem struct {
-	To         string          `json:"to"`
-	Replace    []ReplaceDetail `json:"replace"`
-	Additional []string        `json:"additional"`
-	Exec       [][]string      `json:"exec"`
-}
-
-type ReplaceDetail struct {
-	Search  string `json:"search"`
-	Replace string `json:"replace"`
-}
-
 func main() {
+	log.Println("StaticDeployment v0.0.1")
+
 	if len(os.Args) <= 1 {
 		log.Println("必须指定一个配置文件路径。")
 		return
@@ -45,5 +26,11 @@ func main() {
 		return
 	}
 
-	fmt.Println(projects)
+	for i, project := range projects {
+		if runProject(project) {
+			log.Printf("项目 %d : %s 处理成功。\n", i, project.Name)
+		} else {
+			log.Printf("项目 %d : %s 处理失败。\n", i, project.Name)
+		}
+	}
 }
