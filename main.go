@@ -4,10 +4,16 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"runtime"
+)
+
+var (
+	osName string
 )
 
 func main() {
-	log.Println("StaticDeployment v0.0.1")
+	osName = runtime.GOOS
+	log.Println("StaticDeployment v0.0.1 for", osName)
 
 	if len(os.Args) <= 1 {
 		log.Println("必须指定一个配置文件路径。")

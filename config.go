@@ -22,6 +22,7 @@ type ReplaceDetail struct {
 }
 
 type FileData struct {
+	Path       string
 	LoadString string
 	LoadSize   int
 	NewString  string
