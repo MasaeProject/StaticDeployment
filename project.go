@@ -24,8 +24,11 @@ func runProject(project Project) bool {
 	} else {
 		log.Printf("已加载文件 %s (%d B)\n", project.Source, len(loadFileText))
 	}
-	if runReplace(project.Replace, f) {
-		runExec(project.Exec, project.Source, "")
+	if project.PreRun != nil {
+		runExec(*project.PreRun, project.Source, "")
+	}
+	if runReplace(project.Replace, f) && project.Run != nil {
+		runExec(*project.Run, project.Source, "")
 	}
 	return true
 }
@@ -49,28 +52,38 @@ func runReplace(replace []ReplaceItem, f FileData) bool {
 	for _, item := range replace {
 		f = runReplaceDetail(item.Replace, f)
 		if ensureDir(item.To) {
+			if item.PreRun != nil {
+				runExec(*item.PreRun, f.Path, item.To)
+			}
 			err := os.WriteFile(item.To, []byte(f.NewString), 0666)
 			if err != nil {
 				isOK = false
 				log.Printf("错误：写入文件 %s 失败：%s (%d B -> %d B)\n", item.To, err, f.LoadSize, f.NewSize)
 			} else {
 				log.Printf("已写入文件 %s (%d B -> %d B)\n", item.To, f.LoadSize, f.NewSize)
-				runExec(item.Exec, f.Path, item.To)
+				if item.Run != nil {
+					runExec(*item.Run, f.Path, item.To)
+				}
 			}
 		}
 	}
 	return isOK
 }
 
-func runExec(exec [][]string, srcPath string, toPath string) {
-	if len(exec) == 0 {
+func runExec(run Run, srcPath string, toPath string) {
+	var cmds [][]string = [][]string{}
+	if osName == "windows" && run.Windows != nil && len(*run.Windows) > 0 {
+		cmds = *run.Windows
+	} else if osName == "linux" && run.Linux != nil && len(*run.Linux) > 0 {
+		cmds = *run.Linux
+	} else if osName == "darwin" && run.Darwin != nil && len(*run.Darwin) > 0 {
+		cmds = *run.Darwin
+	} else if run.Default != nil && len(*run.Default) > 0 {
+		cmds = *run.Default
+	} else {
 		return
 	}
-	var isRun bool = false
-	var defaultCmd []string = []string{}
-	for _, nowExec := range exec {
-		var useOS string = nowExec[0]
-		var cmd []string = nowExec[1:]
+	for _, cmd := range cmds {
 		for i, c := range cmd {
 			if c == "$source$" || c == "$src$" {
 				cmd[i] = srcPath
@@ -78,15 +91,7 @@ func runExec(exec [][]string, srcPath string, toPath string) {
 				cmd[i] = toPath
 			}
 		}
-		if len(useOS) == 0 {
-			defaultCmd = cmd
-		} else if useOS == osName {
-			isRun = true
-			runCMD(cmd)
-		}
-	}
-	if !isRun && defaultCmd != nil {
-		runCMD(defaultCmd)
+		runCMD(cmd)
 	}
 }
 

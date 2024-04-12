@@ -3,16 +3,25 @@ package main
 type Project struct {
 	Name       string        `json:"name"`
 	Source     string        `json:"source"`
-	Additional []string      `json:"additional"`
-	Exec       [][]string    `json:"exec"`
+	Additional *[]string     `json:"additional"`
+	Run        *Run          `json:"run"`
+	PreRun     *Run          `json:"prerun"`
 	Replace    []ReplaceItem `json:"replace"`
 }
 
 type ReplaceItem struct {
 	To         string          `json:"to"`
 	Replace    []ReplaceDetail `json:"replace"`
-	Additional []string        `json:"additional"`
-	Exec       [][]string      `json:"exec"`
+	Additional *[]string       `json:"additional"`
+	Run        *Run            `json:"run"`
+	PreRun     *Run            `json:"prerun"`
+}
+
+type Run struct {
+	Default *[][]string `json:"default"`
+	Windows *[][]string `json:"windows"`
+	Linux   *[][]string `json:"linux"`
+	Darwin  *[][]string `json:"darwin"`
 }
 
 type ReplaceDetail struct {

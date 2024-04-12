@@ -2,16 +2,10 @@
     {
         "name": "test-project1",
         "source": "test/data/test-project1/index.html",
-        "additional": [],
-        "exec": [],
         "replace": [
             {
                 "to": "test/out/en/p1/index.html",
-                "replace": [],
-                "additional": [
-                    "none"
-                ],
-                "exec": []
+                "replace": []
             },
             {
                 "to": "test/out/zh/p1/index.html",
@@ -26,9 +20,7 @@
                         "new": "神楽坂雅詩",
                         "num": -1
                     }
-                ],
-                "additional": [],
-                "exec": []
+                ]
             },
             {
                 "to": "test/out/ja/p1/index.html",
@@ -43,32 +35,31 @@
                         "new": "かぐらざか みやび",
                         "num": -1
                     }
-                ],
-                "additional": [],
-                "exec": []
+                ]
             }
         ]
     },
     {
         "name": "test-project2",
         "source": "test/data/test-project2/index.ts",
-        "additional": [],
-        "exec": [
-            [
-                "",
-                "cp",
-                "test/data/test-project2/index.html",
-                "test/out/en/p2/index.html"
+        "run": {
+            "default": [
+                [
+                    "cp",
+                    "test/data/test-project2/index.html",
+                    "test/out/en/p2/index.html"
+                ]
             ],
-            [
-                "windows",
-                "cmd",
-                "/C",
-                "COPY",
-                "test\\data\\test-project2\\index.html",
-                "test\\out\\en\\p2\\index.html"
+            "windows": [
+                [
+                    "cmd",
+                    "/C",
+                    "COPY",
+                    "test\\data\\test-project2\\index.html",
+                    "test\\out\\en\\p2\\index.html"
+                ]
             ]
-        ],
+        },
         "replace": [
             {
                 "to": "test/out/en/p2/index.ts",
@@ -84,14 +75,14 @@
                         "num": 1
                     }
                 ],
-                "additional": [],
-                "exec": [
-                    [
-                        "",
-                        "tsc",
-                        "test/out/en/p2/index.ts"
+                "run": {
+                    "default": [
+                        [
+                            "tsc",
+                            "test/out/en/p2/index.ts"
+                        ]
                     ]
-                ]
+                }
             },
             {
                 "to": "test/out/zh/p2/index.ts",
@@ -107,14 +98,14 @@
                         "num": 1
                     }
                 ],
-                "additional": [],
-                "exec": [
-                    [
-                        "",
-                        "tsc",
-                        "test/out/zh/p2/index.ts"
+                "run": {
+                    "default": [
+                        [
+                            "tsc",
+                            "test/out/zh/p2/index.ts"
+                        ]
                     ]
-                ]
+                }
             },
             {
                 "to": "test/out/ja/p2/index.ts",
@@ -130,14 +121,14 @@
                         "num": 1
                     }
                 ],
-                "additional": [],
-                "exec": [
-                    [
-                        "",
-                        "tsc",
-                        "test/out/ja/p2/index.ts"
+                "run": {
+                    "default": [
+                        [
+                            "tsc",
+                            "test/out/ja/p2/index.ts"
+                        ]
                     ]
-                ]
+                }
             }
         ]
     }
