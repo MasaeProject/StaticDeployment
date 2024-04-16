@@ -1,0 +1,71 @@
+- name: test-project1
+  source: test/data/test-project1/index.html
+  replace:
+    - to: test/out/en/p1/index.html
+      replace: []
+    - to: test/out/zh/p1/index.html
+      replace:
+        - old: Welcome!
+          new: 欢迎!
+          num: 1
+        - old: Kagurazaka Yashi
+          new: 神楽坂雅詩
+          num: -1
+    - to: test/out/ja/p1/index.html
+      replace:
+        - old: Welcome!
+          new: ようこそ!
+          num: 1
+        - old: Kagurazaka Yashi
+          new: かぐらざか みやび
+          num: -1
+- name: test-project2
+  source: test/data/test-project2/index.ts
+  run:
+    default:
+      - - cp
+        - test/data/test-project2/index.html
+        - test/out/en/p2/index.html
+    windows:
+      - - cmd
+        - /C
+        - COPY
+        - test\data\test-project2\index.html
+        - test\out\en\p2\index.html
+  replace:
+    - to: test/out/en/p2/index.ts
+      replace:
+        - old: red
+          new: orange
+          num: 1
+        - old: "Hello, World!"
+          new: Welcome!
+          num: 1
+      run:
+        default:
+          - - tsc
+            - test/out/en/p2/index.ts
+    - to: test/out/zh/p2/index.ts
+      replace:
+        - old: red
+          new: orange
+          num: 1
+        - old: "Hello, World!"
+          new: 欢迎!
+          num: 1
+      run:
+        default:
+          - - tsc
+            - test/out/zh/p2/index.ts
+    - to: test/out/ja/p2/index.ts
+      replace:
+        - old: red
+          new: orange
+          num: 1
+        - old: "Hello, World!"
+          new: ようこそ!
+          num: 1
+      run:
+        default:
+          - - tsc
+            - test/out/ja/p2/index.ts
