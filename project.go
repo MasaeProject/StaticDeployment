@@ -84,14 +84,41 @@ func runExec(run Run, srcPath string, toPath string) {
 		return
 	}
 	for _, cmd := range cmds {
-		for i, c := range cmd {
-			if c == "$source$" || c == "$src$" {
-				cmd[i] = srcPath
-			} else if c == "$to$" {
-				cmd[i] = toPath
+		var noEmbCmd = false
+		if len(cmd) == 3 {
+			var err error = nil
+			switch cmd[0] {
+			case "$CP":
+				err = Copy(cmd[1], cmd[2])
+			case "$MV":
+				err = Move(cmd[1], cmd[2])
+			case "$SMV":
+				err = MoveSecure(cmd[1], cmd[2])
+			case "$RM":
+				err = Remove(cmd[1])
+			case "$SRM":
+				err = RemoveSecure(cmd[1])
+			case "$REN":
+				err = Rename(cmd[1], cmd[2])
+			default:
+				noEmbCmd = true
 			}
+			if err != nil {
+				log.Printf("错误: 文件操作 %s \"%s\" \"%s\" 失败: %s\n", cmd[0], cmd[1], cmd[2], err)
+			}
+		} else {
+			noEmbCmd = true
 		}
-		runCMD(cmd)
+		if noEmbCmd {
+			for i, c := range cmd {
+				if c == "$SOURCE" || c == "$SRC" {
+					cmd[i] = srcPath
+				} else if c == "$TO" {
+					cmd[i] = toPath
+				}
+			}
+			runCMD(cmd)
+		}
 	}
 }
 

@@ -23,15 +23,9 @@
   source: test/data/test-project2/index.ts
   run:
     default:
-      - - cp
+      - - $CP
         - test/data/test-project2/index.html
         - test/out/en/p2/index.html
-    windows:
-      - - cmd
-        - /C
-        - COPY
-        - test\data\test-project2\index.html
-        - test\out\en\p2\index.html
   replace:
     - to: test/out/en/p2/index.ts
       replace:
