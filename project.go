@@ -25,10 +25,10 @@ func runProject(project Project) bool {
 		log.Printf("已加载文件 %s (%d B)\n", project.Source, len(loadFileText))
 	}
 	if project.PreRun != nil {
-		runExec(*project.PreRun, project.Source, "")
+		runExec(*project.PreRun, project.Source)
 	}
-	if runReplace(project.Replace, f) && project.Run != nil {
-		runExec(*project.Run, project.Source, "")
+	if runReplace(project.Name, project.Replace, f) && project.Run != nil {
+		runExec(*project.Run, project.Source)
 	}
 	return true
 }
@@ -44,33 +44,48 @@ func ensureDir(filePath string) bool {
 	return true
 }
 
-func runReplace(replace []ReplaceItem, f FileData) bool {
+func runReplace(projectName string, replace []ReplaceItem, f FileData) bool {
 	if len(replace) == 0 {
 		return true
 	}
 	var isOK = true
 	for _, item := range replace {
+		log.Printf("开始处理项目: %s  作业: %s", projectName, item.Name)
 		f = runReplaceDetail(item.Replace, f)
-		if ensureDir(item.To) {
-			if item.PreRun != nil {
-				runExec(*item.PreRun, f.Path, item.To)
+		var bak string = f.Path + "." + backupExtension
+		if item.PreRun != nil {
+			runExec(*item.PreRun, f.Path)
+		}
+		var err error = copyFile(f.Path, bak)
+		if err != nil {
+			log.Printf("错误: 备份文件 %s 到 %s 失败: %s\n", f.Path, bak, err)
+			continue
+		}
+		err = os.WriteFile(f.Path, []byte(f.NewString), 0666)
+		if err != nil {
+			isOK = false
+			log.Printf("错误: 写入文件 %s 失败：%s (%d B -> %d B)\n", f.Path, err, f.LoadSize, f.NewSize)
+		} else {
+			log.Printf("已写入文件 %s (%d B -> %d B)\n", f.Path, f.LoadSize, f.NewSize)
+			if item.Run != nil {
+				runExec(*item.Run, f.Path)
 			}
-			err := os.WriteFile(item.To, []byte(f.NewString), 0666)
-			if err != nil {
-				isOK = false
-				log.Printf("错误：写入文件 %s 失败：%s (%d B -> %d B)\n", item.To, err, f.LoadSize, f.NewSize)
-			} else {
-				log.Printf("已写入文件 %s (%d B -> %d B)\n", item.To, f.LoadSize, f.NewSize)
-				if item.Run != nil {
-					runExec(*item.Run, f.Path, item.To)
-				}
-			}
+		}
+		err = removeFile(f.Path)
+		if err != nil {
+			log.Printf("警告: 删除临时文件 %s 失败: %s\n", f.Path, err)
+			continue
+		}
+		err = moveFile(bak, f.Path)
+		if err != nil {
+			log.Printf("错误: 恢复文件 %s 到 %s 失败: %s\n", bak, f.Path, err)
+			continue
 		}
 	}
 	return isOK
 }
 
-func runExec(run Run, srcPath string, toPath string) {
+func runExec(run Run, srcPath string) {
 	var cmds [][]string = [][]string{}
 	if osName == "windows" && run.Windows != nil && len(*run.Windows) > 0 {
 		cmds = *run.Windows
@@ -85,21 +100,62 @@ func runExec(run Run, srcPath string, toPath string) {
 	}
 	for _, cmd := range cmds {
 		var noEmbCmd = false
-		if len(cmd) == 3 {
+		for i, c := range cmd {
+			var nKey string = "$SRC"
+			if strings.Contains(c, nKey) {
+				c = strings.ReplaceAll(c, nKey, srcPath)
+			}
+			nKey = "$SRCNAME"
+			if strings.Contains(c, nKey) {
+				c = strings.ReplaceAll(c, nKey, filepath.Base(srcPath))
+			}
+			nKey = "$SRCEXT"
+			if strings.Contains(c, nKey) {
+				if IsDirectory(srcPath) == 0 {
+					c = strings.ReplaceAll(c, nKey, filepath.Ext(srcPath))
+				} else {
+					c = strings.ReplaceAll(c, nKey, "")
+				}
+			}
+			nKey = "$SRCDIR"
+			if strings.Contains(c, nKey) {
+				c = strings.ReplaceAll(c, nKey, filepath.Dir(srcPath))
+			}
+			cmd[i] = c
+		}
+		fmt.Println("==========", cmd)
+		var cmdLen int = len(cmd)
+		if cmdLen >= 2 {
 			var err error = nil
 			switch cmd[0] {
 			case "$CP":
-				err = Copy(cmd[1], cmd[2])
+				if cmdLen == 3 {
+					err = Copy(cmd[1], cmd[2])
+				} else if cmdLen == 2 {
+					err = Copy(srcPath, cmd[1])
+				}
 			case "$MV":
-				err = Move(cmd[1], cmd[2])
+				if cmdLen == 3 {
+					err = Move(cmd[1], cmd[2])
+				} else if cmdLen == 2 {
+					err = Move(srcPath, cmd[1])
+				}
 			case "$SMV":
-				err = MoveSecure(cmd[1], cmd[2])
+				if cmdLen == 3 {
+					err = MoveSecure(cmd[1], cmd[2])
+				} else if cmdLen == 2 {
+					err = MoveSecure(srcPath, cmd[1])
+				}
 			case "$RM":
 				err = Remove(cmd[1])
 			case "$SRM":
 				err = RemoveSecure(cmd[1])
 			case "$REN":
-				err = Rename(cmd[1], cmd[2])
+				if cmdLen == 3 {
+					err = Rename(cmd[1], cmd[2])
+				} else if cmdLen == 2 {
+					err = Rename(srcPath, cmd[1])
+				}
 			default:
 				noEmbCmd = true
 			}
@@ -110,13 +166,6 @@ func runExec(run Run, srcPath string, toPath string) {
 			noEmbCmd = true
 		}
 		if noEmbCmd {
-			for i, c := range cmd {
-				if c == "$SOURCE" || c == "$SRC" {
-					cmd[i] = srcPath
-				} else if c == "$TO" {
-					cmd[i] = toPath
-				}
-			}
 			runCMD(cmd)
 		}
 	}

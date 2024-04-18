@@ -1,4 +1,4 @@
-module github.com/masae-project/static-deployment
+module github.com/MasaeProject/StaticDeployment
 
 go 1.22.1
 

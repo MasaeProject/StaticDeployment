@@ -1,9 +1,13 @@
 - name: test-project1
   source: test/data/test-project1/index.html
   replace:
-    - to: test/out/en/p1/index.html
-      replace: []
-    - to: test/out/zh/p1/index.html
+    - name: en
+      prerun:
+        default:
+          - - $CP
+            - $SRC
+            - test/out/en/p1/index.ts
+    - name: zh
       replace:
         - old: Welcome!
           new: 欢迎!
@@ -11,7 +15,11 @@
         - old: Kagurazaka Yashi
           new: 神楽坂雅詩
           num: -1
-    - to: test/out/ja/p1/index.html
+      run:
+        default:
+          - - $CP
+            - test/out/zh/p1/index.ts
+    - name: ja
       replace:
         - old: Welcome!
           new: ようこそ!
@@ -19,15 +27,14 @@
         - old: Kagurazaka Yashi
           new: かぐらざか みやび
           num: -1
+      run:
+        default:
+          - - $CP
+            - test/out/ja/p1/index.ts
 - name: test-project2
   source: test/data/test-project2/index.ts
-  run:
-    default:
-      - - $CP
-        - test/data/test-project2/index.html
-        - test/out/en/p2/index.html
   replace:
-    - to: test/out/en/p2/index.ts
+    - name: en
       replace:
         - old: red
           new: orange
@@ -38,8 +45,11 @@
       run:
         default:
           - - tsc
-            - test/out/en/p2/index.ts
-    - to: test/out/zh/p2/index.ts
+            - $SRC
+          - - $MV
+            - $SRCDIR/$SRCNAME.js
+            - test/out/en/p2/index.js
+    - name: zh
       replace:
         - old: red
           new: orange
@@ -50,8 +60,11 @@
       run:
         default:
           - - tsc
-            - test/out/zh/p2/index.ts
-    - to: test/out/ja/p2/index.ts
+            - $SRC
+          - - $MV
+            - $SRCDIR/$SRCNAME.js
+            - test/out/zh/p2/index.js
+    - name: ja
       replace:
         - old: red
           new: orange
@@ -62,4 +75,7 @@
       run:
         default:
           - - tsc
-            - test/out/ja/p2/index.ts
+            - $SRC
+          - - $MV
+            - $SRCDIR/$SRCNAME.js
+            - test/out/ja/p2/index.js

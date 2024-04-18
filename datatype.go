@@ -10,7 +10,7 @@ type Project struct {
 }
 
 type ReplaceItem struct {
-	To         string          `json:"to"`
+	Name       string          `json:"to"`
 	Replace    []ReplaceDetail `json:"replace"`
 	Additional *[]string       `json:"additional"`
 	Run        *Run            `json:"run"`

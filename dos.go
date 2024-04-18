@@ -6,10 +6,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-func copyFile(src, dst string) error {
-	log.Printf("CP %s -> %s", src, dst)
+func copyFile(src string, dst string) error {
+	log.Printf("复制文件: %s -> %s", src, dst) // CP
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -39,7 +40,7 @@ func copyFile(src, dst string) error {
 }
 
 func copyDirectory(src string, dst string) error {
-	log.Printf("CPDIR %s -> %s", src, dst)
+	log.Printf("复制文件夹: %s -> %s", src, dst) // CPDIR
 	sourceInfo, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -71,9 +72,16 @@ func copyDirectory(src string, dst string) error {
 	return nil
 }
 
-func Copy(src, dst string) error {
-	src = filepath.Clean(src)
-	dst = filepath.Clean(dst)
+func CleanPath(path string) string {
+	path = filepath.Clean(path)
+	path = strings.ReplaceAll(path, "/", string(filepath.Separator))
+	path = strings.ReplaceAll(path, "\\", string(filepath.Separator))
+	return path
+}
+
+func Copy(src string, dst string) error {
+	src = CleanPath(src)
+	dst = CleanPath(dst)
 
 	srcInfo, err := os.Stat(src)
 	if err != nil {
@@ -81,20 +89,20 @@ func Copy(src, dst string) error {
 	}
 
 	if srcInfo.IsDir() {
-		if dst[len(dst)-1] == '/' {
+		if dst[len(dst)-1] == filepath.Separator {
 			dst = filepath.Join(dst, filepath.Base(src))
 		}
 		return copyDirectory(src, dst)
 	} else {
-		if dst[len(dst)-1] == '/' {
+		if dst[len(dst)-1] == filepath.Separator {
 			dst = filepath.Join(dst, filepath.Base(src))
 		}
 		return copyFile(src, dst)
 	}
 }
 
-func moveFile(src, dst string) error {
-	log.Printf("MV %s -> %s", src, dst)
+func moveFile(src string, dst string) error {
+	log.Printf("移动文件: %s -> %s", src, dst) // MV
 	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
 		return err
 	}
@@ -102,8 +110,8 @@ func moveFile(src, dst string) error {
 	return os.Rename(src, dst)
 }
 
-func moveDirectory(src, dst string) error {
-	log.Printf("MVDIR %s -> %s", src, dst)
+func moveDirectory(src string, dst string) error {
+	log.Printf("移动文件夹: %s -> %s", src, dst) // MVDIR
 	sourceInfo, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -130,9 +138,9 @@ func moveDirectory(src, dst string) error {
 	return os.Remove(src)
 }
 
-func Move(src, dst string) error {
-	src = filepath.Clean(src)
-	dst = filepath.Clean(dst)
+func Move(src string, dst string) error {
+	src = CleanPath(src)
+	dst = CleanPath(dst)
 
 	srcInfo, err := os.Stat(src)
 	if err != nil {
@@ -140,37 +148,37 @@ func Move(src, dst string) error {
 	}
 
 	if srcInfo.IsDir() {
-		if dst[len(dst)-1] == '/' {
+		if dst[len(dst)-1] == filepath.Separator {
 			dst = filepath.Join(dst, filepath.Base(src))
 		}
 		return moveDirectory(src, dst)
 	} else {
-		if dst[len(dst)-1] == '/' {
+		if dst[len(dst)-1] == filepath.Separator {
 			dst = filepath.Join(dst, filepath.Base(src))
 		}
 		return moveFile(src, dst)
 	}
 }
 
-func moveFileSecure(src, dst string) error {
-	log.Printf("SMV %s -> %s", src, dst)
+func moveFileSecure(src string, dst string) error {
+	log.Printf("移动文件(复制): %s -> %s", src, dst) // SMV
 	if err := copyFile(src, dst); err != nil {
 		return err
 	}
 	return removeFile(src)
 }
 
-func moveDirectorySecure(src, dst string) error {
-	log.Printf("SMVDIR %s -> %s", src, dst)
+func moveDirectorySecure(src string, dst string) error {
+	log.Printf("移动文件夹(复制): %s -> %s", src, dst) // SMVDIR
 	if err := copyDirectory(src, dst); err != nil {
 		return err
 	}
 	return removeDirectory(src)
 }
 
-func MoveSecure(src, dst string) error {
-	src = filepath.Clean(src)
-	dst = filepath.Clean(dst)
+func MoveSecure(src string, dst string) error {
+	src = CleanPath(src)
+	dst = CleanPath(dst)
 
 	srcInfo, err := os.Stat(src)
 	if err != nil {
@@ -178,12 +186,12 @@ func MoveSecure(src, dst string) error {
 	}
 
 	if srcInfo.IsDir() {
-		if dst[len(dst)-1] == '/' {
+		if dst[len(dst)-1] == filepath.Separator {
 			dst = filepath.Join(dst, filepath.Base(src))
 		}
 		return moveDirectorySecure(src, dst)
 	} else {
-		if dst[len(dst)-1] == '/' {
+		if dst[len(dst)-1] == filepath.Separator {
 			dst = filepath.Join(dst, filepath.Base(src))
 		}
 		return moveFileSecure(src, dst)
@@ -191,7 +199,7 @@ func MoveSecure(src, dst string) error {
 }
 
 func removeFile(filePath string) error {
-	log.Printf("RM %s", filePath)
+	log.Printf("删除文件: %s", filePath) // RM
 	err := os.Remove(filePath)
 	if err != nil {
 		return err
@@ -200,7 +208,7 @@ func removeFile(filePath string) error {
 }
 
 func removeDirectory(dirPath string) error {
-	log.Printf("RMDIR %s", dirPath)
+	log.Printf("删除文件夹: %s", dirPath) // RMDIR
 	err := os.RemoveAll(dirPath)
 	if err != nil {
 		return err
@@ -209,7 +217,7 @@ func removeDirectory(dirPath string) error {
 }
 
 func Remove(path string) error {
-	path = filepath.Clean(path)
+	path = CleanPath(path)
 
 	info, err := os.Stat(path)
 	if err != nil {
@@ -224,7 +232,7 @@ func Remove(path string) error {
 }
 
 func RemoveFileSecure(filename string) error {
-	log.Printf("SRM %s", filename)
+	log.Printf("安全删除文件: %s", filename) // SRM
 	file, err := os.OpenFile(filename, os.O_WRONLY, 0)
 	if err != nil {
 		return err
@@ -254,7 +262,7 @@ func RemoveFileSecure(filename string) error {
 }
 
 func RemoveDirectorySecure(dirPath string) error {
-	log.Printf("SRMDIR %s", dirPath)
+	log.Printf("安全删除文件夹: %s", dirPath) // SRMDIR
 	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -277,7 +285,7 @@ func RemoveDirectorySecure(dirPath string) error {
 }
 
 func RemoveSecure(path string) error {
-	path = filepath.Clean(path)
+	path = CleanPath(path)
 
 	info, err := os.Stat(path)
 	if err != nil {
@@ -291,11 +299,22 @@ func RemoveSecure(path string) error {
 	}
 }
 
-func Rename(oldPath, newPath string) error {
-	log.Printf("REN %s -> %s", oldPath, newPath)
+func RenamePath(oldPath, newPath string) error {
+	log.Printf("重命名: %s -> %s", oldPath, newPath) // REN
 	err := os.Rename(oldPath, newPath)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func IsDirectory(path string) int8 {
+	info, err := os.Stat(path)
+	if err != nil {
+		return -1
+	}
+	if info.IsDir() {
+		return 1
+	}
+	return 0
 }

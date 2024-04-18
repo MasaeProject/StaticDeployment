@@ -11,6 +11,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const (
+	backupExtension = "StaticDeploymentBackup"
+)
+
 var (
 	osName string
 )
@@ -63,9 +67,9 @@ func main() {
 
 	for i, project := range projects {
 		if runProject(project) {
-			log.Printf("项目 %d : %s 处理成功。\n", i, project.Name)
+			log.Printf("项目 %d : %s 处理成功。\n", i+1, project.Name)
 		} else {
-			log.Printf("项目 %d : %s 处理失败。\n", i, project.Name)
+			log.Printf("项目 %d : %s 处理失败！\n", i+1, project.Name)
 		}
 	}
 }
