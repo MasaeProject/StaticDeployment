@@ -37,3 +37,8 @@ type FileData struct {
 	NewString  string
 	NewSize    int
 }
+
+type Names struct {
+	Project string
+	Replace string
+}

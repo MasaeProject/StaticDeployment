@@ -16,6 +16,7 @@ func runProject(project Project) bool {
 		log.Println("错误：你必须为项目指定一个 source 。")
 		return false
 	}
+	project.Source = CleanPath(project.Source)
 	loadFileText, err := os.ReadFile(project.Source)
 	var f FileData = FileData{Path: project.Source, LoadString: string(loadFileText), LoadSize: len(loadFileText)}
 	if err != nil {
@@ -24,11 +25,12 @@ func runProject(project Project) bool {
 	} else {
 		log.Printf("已加载文件 %s (%d B)\n", project.Source, len(loadFileText))
 	}
+	var names Names = Names{Project: project.Name, Replace: ""}
 	if project.PreRun != nil {
-		runExec(*project.PreRun, project.Source)
+		runExec(*project.PreRun, project.Source, names)
 	}
 	if runReplace(project.Name, project.Replace, f) && project.Run != nil {
-		runExec(*project.Run, project.Source)
+		runExec(*project.Run, project.Source, names)
 	}
 	return true
 }
@@ -51,10 +53,11 @@ func runReplace(projectName string, replace []ReplaceItem, f FileData) bool {
 	var isOK = true
 	for _, item := range replace {
 		log.Printf("开始处理项目: %s  作业: %s", projectName, item.Name)
+		var names Names = Names{Project: projectName, Replace: item.Name}
 		f = runReplaceDetail(item.Replace, f)
 		var bak string = f.Path + "." + backupExtension
 		if item.PreRun != nil {
-			runExec(*item.PreRun, f.Path)
+			runExec(*item.PreRun, f.Path, names)
 		}
 		var err error = copyFile(f.Path, bak)
 		if err != nil {
@@ -68,7 +71,7 @@ func runReplace(projectName string, replace []ReplaceItem, f FileData) bool {
 		} else {
 			log.Printf("已写入文件 %s (%d B -> %d B)\n", f.Path, f.LoadSize, f.NewSize)
 			if item.Run != nil {
-				runExec(*item.Run, f.Path)
+				runExec(*item.Run, f.Path, names)
 			}
 		}
 		err = removeFile(f.Path)
@@ -76,7 +79,7 @@ func runReplace(projectName string, replace []ReplaceItem, f FileData) bool {
 			log.Printf("警告: 删除临时文件 %s 失败: %s\n", f.Path, err)
 			continue
 		}
-		err = moveFile(bak, f.Path)
+		err = RenamePath(bak, f.Path)
 		if err != nil {
 			log.Printf("错误: 恢复文件 %s 到 %s 失败: %s\n", bak, f.Path, err)
 			continue
@@ -85,7 +88,7 @@ func runReplace(projectName string, replace []ReplaceItem, f FileData) bool {
 	return isOK
 }
 
-func runExec(run Run, srcPath string) {
+func runExec(run Run, srcPath string, names Names) {
 	var cmds [][]string = [][]string{}
 	if osName == "windows" && run.Windows != nil && len(*run.Windows) > 0 {
 		cmds = *run.Windows
@@ -100,31 +103,69 @@ func runExec(run Run, srcPath string) {
 	}
 	for _, cmd := range cmds {
 		var noEmbCmd = false
+		var cmdLen int = len(cmd)
 		for i, c := range cmd {
 			var nKey string = "$SRC"
+			c = CleanPath(c)
+			srcPath = CleanPath(srcPath)
+			var pathArr []string = strings.Split(srcPath, string(filepath.Separator))
+			var pathArrLen = len(pathArr)
+			var fileFullName string = pathArr[pathArrLen-1]
+			var dirPath string = ""
+			if pathArrLen > 1 {
+				fileFullName = pathArr[pathArrLen-1]
+				pathArr = pathArr[:pathArrLen-1]
+				dirPath = strings.Join(pathArr, string(filepath.Separator))
+			}
+			var fileNameArr []string = strings.Split(fileFullName, ".")
+			var fileNameArrLen = len(fileNameArr)
+			var extName string = fileNameArr[fileNameArrLen-1]
+			var fileName string = fileNameArr[0]
+			if fileNameArrLen > 2 {
+				fileNameArr = fileNameArr[:fileNameArrLen-1]
+				fileName = strings.Join(fileNameArr, ".")
+			} else if fileNameArrLen == 1 {
+				extName = ""
+			}
+			nKey = "$PROJECT"
 			if strings.Contains(c, nKey) {
-				c = strings.ReplaceAll(c, nKey, srcPath)
+				c = strings.ReplaceAll(c, nKey, names.Project)
+			}
+			nKey = "$JOBNAME"
+			if strings.Contains(c, nKey) {
+				c = strings.ReplaceAll(c, nKey, names.Replace)
+			}
+			nKey = "$SRCFILE"
+			if strings.Contains(c, nKey) {
+				c = strings.ReplaceAll(c, nKey, fileFullName)
 			}
 			nKey = "$SRCNAME"
 			if strings.Contains(c, nKey) {
-				c = strings.ReplaceAll(c, nKey, filepath.Base(srcPath))
+				c = strings.ReplaceAll(c, nKey, fileName)
 			}
 			nKey = "$SRCEXT"
 			if strings.Contains(c, nKey) {
 				if IsDirectory(srcPath) == 0 {
-					c = strings.ReplaceAll(c, nKey, filepath.Ext(srcPath))
+					c = strings.ReplaceAll(c, nKey, extName)
 				} else {
 					c = strings.ReplaceAll(c, nKey, "")
 				}
 			}
+			nKey = "$SRCDIRNAME"
+			if strings.Contains(c, nKey) {
+				c = strings.ReplaceAll(c, nKey, pathArr[len(pathArr)-1])
+			}
 			nKey = "$SRCDIR"
 			if strings.Contains(c, nKey) {
-				c = strings.ReplaceAll(c, nKey, filepath.Dir(srcPath))
+				c = strings.ReplaceAll(c, nKey, dirPath)
 			}
-			cmd[i] = c
+			nKey = "$SRC"
+			if strings.Contains(c, nKey) {
+				c = strings.ReplaceAll(c, nKey, srcPath)
+			}
+			// fmt.Println("SRCFILE", fileFullName, "SRCNAME", fileName, "SRCEXT", extName, "SRCDIRNAME", pathArr[len(pathArr)-1], "SRCDIR", dirPath, "SRC", srcPath)
+			cmd[i] = CleanPath(c)
 		}
-		fmt.Println("==========", cmd)
-		var cmdLen int = len(cmd)
 		if cmdLen >= 2 {
 			var err error = nil
 			switch cmd[0] {
@@ -152,9 +193,9 @@ func runExec(run Run, srcPath string) {
 				err = RemoveSecure(cmd[1])
 			case "$REN":
 				if cmdLen == 3 {
-					err = Rename(cmd[1], cmd[2])
+					err = RenamePath(cmd[1], cmd[2])
 				} else if cmdLen == 2 {
-					err = Rename(srcPath, cmd[1])
+					err = RenamePath(srcPath, cmd[1])
 				}
 			default:
 				noEmbCmd = true
@@ -179,7 +220,7 @@ func runCMD(cmd []string) {
 	err := ex.Run()
 	if exitError, ok := err.(*exec.ExitError); ok {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
-			fmt.Printf("命令退出代码: %d\n", status.ExitStatus())
+			fmt.Printf("警告: 命令退出代码: %d\n", status.ExitStatus())
 		}
 	} else if err != nil {
 		log.Println("错误：执行命令失败：", err)

@@ -1,4 +1,4 @@
-- name: test-project1
+- name: p1
   source: test/data/test-project1/index.html
   replace:
     - name: en
@@ -6,7 +6,7 @@
         default:
           - - $CP
             - $SRC
-            - test/out/en/p1/index.ts
+            - test/out/$JOBNAME/$PROJECT/$SRCFILE
     - name: zh
       replace:
         - old: Welcome!
@@ -18,7 +18,7 @@
       run:
         default:
           - - $CP
-            - test/out/zh/p1/index.ts
+            - test/out/$JOBNAME/$PROJECT/$SRCFILE
     - name: ja
       replace:
         - old: Welcome!
@@ -30,8 +30,8 @@
       run:
         default:
           - - $CP
-            - test/out/ja/p1/index.ts
-- name: test-project2
+            - test/out/$JOBNAME/$PROJECT/$SRCFILE
+- name: p2
   source: test/data/test-project2/index.ts
   replace:
     - name: en
@@ -48,7 +48,10 @@
             - $SRC
           - - $MV
             - $SRCDIR/$SRCNAME.js
-            - test/out/en/p2/index.js
+            - test/out/$JOBNAME/$PROJECT/index.js
+          - - $CP
+            - $SRCDIR/index.html
+            - test/out/$JOBNAME/$PROJECT/index.html
     - name: zh
       replace:
         - old: red
@@ -63,7 +66,10 @@
             - $SRC
           - - $MV
             - $SRCDIR/$SRCNAME.js
-            - test/out/zh/p2/index.js
+            - test/out/$JOBNAME/$PROJECT/index.js
+          - - $CP
+            - $SRCDIR/index.html
+            - test/out/$JOBNAME/$PROJECT/index.html
     - name: ja
       replace:
         - old: red
@@ -78,4 +84,7 @@
             - $SRC
           - - $MV
             - $SRCDIR/$SRCNAME.js
-            - test/out/ja/p2/index.js
+            - test/out/$JOBNAME/$PROJECT/index.js
+          - - $CP
+            - $SRCDIR/index.html
+            - test/out/$JOBNAME/$PROJECT/index.html
