@@ -10,8 +10,28 @@ import (
 	"syscall"
 )
 
-func runProject(project Project) bool {
-	log.Println("开始处理项目:", project.Name)
+func runSolution(solution Solution) bool {
+	var names Names = Names{Solution: solution.Name, Project: "", Replace: ""}
+	if solution.PreRun != nil {
+		runExec(*solution.PreRun, "", names)
+	}
+	for i, project := range solution.Projects {
+		log.Printf("开始处理: 解决方案: %s  项目 %d : %s\n", names.Solution, i, project.Name)
+		if runProject(project, names) {
+			log.Printf("项目 %d : %s 处理完毕。\n", i+1, project.Name)
+		} else {
+			log.Printf("项目 %d : %s 处理失败！\n", i+1, project.Name)
+			return false
+		}
+	}
+	if solution.Run != nil {
+		runExec(*solution.PreRun, "", names)
+	}
+	return true
+}
+
+func runProject(project Project, names Names) bool {
+	names.Project = project.Name
 	if project.Source == "" {
 		log.Println("错误：你必须为项目指定一个 source 。")
 		return false
@@ -25,70 +45,63 @@ func runProject(project Project) bool {
 	} else {
 		log.Printf("已加载文件 %s (%d B)\n", project.Source, len(loadFileText))
 	}
-	var names Names = Names{Project: project.Name, Replace: ""}
 	if project.PreRun != nil {
 		runExec(*project.PreRun, project.Source, names)
 	}
-	if runReplace(project.Name, project.Replace, f) && project.Run != nil {
-		runExec(*project.Run, project.Source, names)
-	}
-	return true
-}
-
-func ensureDir(filePath string) bool {
-	dir := filepath.Dir(filePath)
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			log.Printf("错误：创建文件夹 %s 失败：%s\n", dir, err)
+	for i, item := range project.Replace {
+		log.Printf("开始处理: 解决方案: %s  项目: %s  作业 %d : %s\n", names.Solution, project.Name, i, item.Name)
+		if runJob(item, f, names) {
+			log.Printf("作业 %d : %s 处理完毕。\n", i+1, item.Name)
+		} else {
+			log.Printf("作业 %d : %s 处理失败！\n", i+1, item.Name)
 			return false
 		}
 	}
+	if project.Run != nil {
+		return runExec(*project.Run, project.Source, names)
+	}
 	return true
 }
 
-func runReplace(projectName string, replace []ReplaceItem, f FileData) bool {
-	if len(replace) == 0 {
-		return true
+func runJob(item ReplaceItem, f FileData, names Names) bool {
+	names.Replace = item.Name
+	f = runReplaceDetail(item.Replace, f)
+	var bak string = f.Path + "." + backupExtension
+	if item.PreRun != nil {
+		if !runExec(*item.PreRun, f.Path, names) {
+			return false
+		}
 	}
-	var isOK = true
-	for _, item := range replace {
-		log.Printf("开始处理项目: %s  作业: %s", projectName, item.Name)
-		var names Names = Names{Project: projectName, Replace: item.Name}
-		f = runReplaceDetail(item.Replace, f)
-		var bak string = f.Path + "." + backupExtension
-		if item.PreRun != nil {
-			runExec(*item.PreRun, f.Path, names)
-		}
-		var err error = copyFile(f.Path, bak)
-		if err != nil {
-			log.Printf("错误: 备份文件 %s 到 %s 失败: %s\n", f.Path, bak, err)
-			continue
-		}
-		err = os.WriteFile(f.Path, []byte(f.NewString), 0666)
-		if err != nil {
-			isOK = false
-			log.Printf("错误: 写入文件 %s 失败：%s (%d B -> %d B)\n", f.Path, err, f.LoadSize, f.NewSize)
-		} else {
-			log.Printf("已写入文件 %s (%d B -> %d B)\n", f.Path, f.LoadSize, f.NewSize)
-			if item.Run != nil {
-				runExec(*item.Run, f.Path, names)
+	var err error = copyFile(f.Path, bak)
+	if err != nil {
+		log.Printf("错误: 备份文件 %s 到 %s 失败: %s\n", f.Path, bak, err)
+		return false
+	}
+	err = os.WriteFile(f.Path, []byte(f.NewString), 0666)
+	if err != nil {
+		log.Printf("错误: 写入文件 %s 失败：%s (%d B -> %d B)\n", f.Path, err, f.LoadSize, f.NewSize)
+		return false
+	} else {
+		log.Printf("已写入文件 %s (%d B -> %d B)\n", f.Path, f.LoadSize, f.NewSize)
+		if item.Run != nil {
+			if !runExec(*item.Run, f.Path, names) {
+				return false
 			}
 		}
-		err = removeFile(f.Path)
-		if err != nil {
-			log.Printf("警告: 删除临时文件 %s 失败: %s\n", f.Path, err)
-			continue
-		}
-		err = RenamePath(bak, f.Path)
-		if err != nil {
-			log.Printf("错误: 恢复文件 %s 到 %s 失败: %s\n", bak, f.Path, err)
-			continue
-		}
 	}
-	return isOK
+	err = removeFile(f.Path)
+	if err != nil {
+		log.Printf("警告: 删除临时文件 %s 失败: %s\n", f.Path, err)
+	}
+	err = RenamePath(bak, f.Path)
+	if err != nil {
+		log.Printf("错误: 恢复文件 %s 到 %s 失败: %s\n", bak, f.Path, err)
+		return false
+	}
+	return true
 }
 
-func runExec(run Run, srcPath string, names Names) {
+func runExec(run Run, srcPath string, names Names) bool {
 	var cmds [][]string = [][]string{}
 	if osName == "windows" && run.Windows != nil && len(*run.Windows) > 0 {
 		cmds = *run.Windows
@@ -99,7 +112,8 @@ func runExec(run Run, srcPath string, names Names) {
 	} else if run.Default != nil && len(*run.Default) > 0 {
 		cmds = *run.Default
 	} else {
-		return
+		log.Println("错误: 未找到适用于当前操作系统的命令。")
+		return false
 	}
 	for _, cmd := range cmds {
 		var noEmbCmd = false
@@ -202,17 +216,19 @@ func runExec(run Run, srcPath string, names Names) {
 			}
 			if err != nil {
 				log.Printf("错误: 文件操作 %s \"%s\" \"%s\" 失败: %s\n", cmd[0], cmd[1], cmd[2], err)
+				return false
 			}
 		} else {
 			noEmbCmd = true
 		}
 		if noEmbCmd {
-			runCMD(cmd)
+			return runCMD(cmd)
 		}
 	}
+	return true
 }
 
-func runCMD(cmd []string) {
+func runCMD(cmd []string) bool {
 	log.Println("运行命令:", strings.Join(cmd, " "))
 	ex := exec.Command(cmd[0], cmd[1:]...)
 	ex.Stdout = os.Stdout
@@ -220,13 +236,17 @@ func runCMD(cmd []string) {
 	err := ex.Run()
 	if exitError, ok := err.(*exec.ExitError); ok {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
-			fmt.Printf("警告: 命令退出代码: %d\n", status.ExitStatus())
+			fmt.Printf("错误: 命令退出代码: %d\n", status.ExitStatus())
+			return false
 		}
 	} else if err != nil {
 		log.Println("错误：执行命令失败：", err)
+		return false
 	} else {
 		log.Println("命令运行成功。")
+		return true
 	}
+	return true
 }
 
 func runReplaceDetail(replace []ReplaceDetail, f FileData) FileData {

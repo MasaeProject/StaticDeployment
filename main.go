@@ -21,7 +21,8 @@ var (
 
 func main() {
 
-	var projects []Project
+	var solutions []Solution
+	// var projects []Project
 
 	osName = runtime.GOOS
 	log.Println("StaticDeployment v0.0.1 for", osName)
@@ -47,7 +48,7 @@ func main() {
 	var fileType byte = fileType(file)
 	if fileType == 'j' {
 		var decoder *json.Decoder = json.NewDecoder(file)
-		err = decoder.Decode(&projects)
+		err = decoder.Decode(&solutions)
 		if err != nil {
 			log.Println("错误: JSON 配置文件解析失败:", err)
 			return
@@ -58,18 +59,19 @@ func main() {
 			log.Println("错误: YAML 配置文件读取失败:", err)
 			return
 		}
-		yaml.Unmarshal(content, &projects)
+		yaml.Unmarshal(content, &solutions)
 	} else {
 		log.Printf("错误: 未知的配置文件类型。")
 		os.Exit(1)
 		return
 	}
 
-	for i, project := range projects {
-		if runProject(project) {
-			log.Printf("项目 %d : %s 处理成功。\n", i+1, project.Name)
+	for i, solution := range solutions {
+		log.Printf("开始处理: 解决方案 %d : %s\n", i+1, solution.Name)
+		if runSolution(solution) {
+			log.Printf("解决方案 %d : %s 处理完毕。\n", i+1, solution.Name)
 		} else {
-			log.Printf("项目 %d : %s 处理失败！\n", i+1, project.Name)
+			log.Printf("解决方案 %d : %s 处理失败！\n", i+1, solution.Name)
 		}
 	}
 }

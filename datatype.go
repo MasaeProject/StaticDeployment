@@ -1,5 +1,12 @@
 package main
 
+type Solution struct {
+	Name     string    `json:"name"`
+	Projects []Project `json:"projects"`
+	Run      *Run      `json:"run"`
+	PreRun   *Run      `json:"prerun"`
+}
+
 type Project struct {
 	Name       string        `json:"name"`
 	Source     string        `json:"source"`
@@ -39,6 +46,7 @@ type FileData struct {
 }
 
 type Names struct {
-	Project string
-	Replace string
+	Solution string
+	Project  string
+	Replace  string
 }

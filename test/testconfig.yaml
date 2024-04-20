@@ -1,90 +1,92 @@
-- name: p1
-  source: test/data/test-project1/index.html
-  replace:
-    - name: en
-      prerun:
-        default:
-          - - $CP
-            - $SRC
-            - test/out/$JOBNAME/$PROJECT/$SRCFILE
-    - name: zh
+- name: test1-2
+  projects:
+    - name: p1
+      source: test/data/test-project1/index.html
       replace:
-        - old: Welcome!
-          new: 欢迎!
-          num: 1
-        - old: Kagurazaka Yashi
-          new: 神楽坂雅詩
-          num: -1
-      run:
-        default:
-          - - $CP
-            - test/out/$JOBNAME/$PROJECT/$SRCFILE
-    - name: ja
+        - name: en
+          prerun:
+            default:
+              - - $CP
+                - $SRC
+                - test/out/$JOBNAME/$PROJECT/$SRCFILE
+        - name: zh
+          replace:
+            - old: Welcome!
+              new: 欢迎!
+              num: 1
+            - old: Kagurazaka Yashi
+              new: 神楽坂雅詩
+              num: -1
+          run:
+            default:
+              - - $CP
+                - test/out/$JOBNAME/$PROJECT/$SRCFILE
+        - name: ja
+          replace:
+            - old: Welcome!
+              new: ようこそ!
+              num: 1
+            - old: Kagurazaka Yashi
+              new: かぐらざか みやび
+              num: -1
+          run:
+            default:
+              - - $CP
+                - test/out/$JOBNAME/$PROJECT/$SRCFILE
+    - name: p2
+      source: test/data/test-project2/index.ts
       replace:
-        - old: Welcome!
-          new: ようこそ!
-          num: 1
-        - old: Kagurazaka Yashi
-          new: かぐらざか みやび
-          num: -1
-      run:
-        default:
-          - - $CP
-            - test/out/$JOBNAME/$PROJECT/$SRCFILE
-- name: p2
-  source: test/data/test-project2/index.ts
-  replace:
-    - name: en
-      replace:
-        - old: red
-          new: orange
-          num: 1
-        - old: "Hello, World!"
-          new: Welcome!
-          num: 1
-      run:
-        default:
-          - - tsc
-            - $SRC
-          - - $MV
-            - $SRCDIR/$SRCNAME.js
-            - test/out/$JOBNAME/$PROJECT/index.js
-          - - $CP
-            - $SRCDIR/index.html
-            - test/out/$JOBNAME/$PROJECT/index.html
-    - name: zh
-      replace:
-        - old: red
-          new: orange
-          num: 1
-        - old: "Hello, World!"
-          new: 欢迎!
-          num: 1
-      run:
-        default:
-          - - tsc
-            - $SRC
-          - - $MV
-            - $SRCDIR/$SRCNAME.js
-            - test/out/$JOBNAME/$PROJECT/index.js
-          - - $CP
-            - $SRCDIR/index.html
-            - test/out/$JOBNAME/$PROJECT/index.html
-    - name: ja
-      replace:
-        - old: red
-          new: orange
-          num: 1
-        - old: "Hello, World!"
-          new: ようこそ!
-          num: 1
-      run:
-        default:
-          - - tsc
-            - $SRC
-          - - $MV
-            - $SRCDIR/$SRCNAME.js
-            - test/out/$JOBNAME/$PROJECT/index.js
-          - - $CP
-            - $SRCDIR/index.html
-            - test/out/$JOBNAME/$PROJECT/index.html
+        - name: en
+          replace:
+            - old: red
+              new: orange
+              num: 1
+            - old: "Hello, World!"
+              new: Welcome!
+              num: 1
+          run:
+            default:
+              - - tsc
+                - $SRC
+              - - $MV
+                - $SRCDIR/$SRCNAME.js
+                - test/out/$JOBNAME/$PROJECT/index.js
+              - - $CP
+                - $SRCDIR/index.html
+                - test/out/$JOBNAME/$PROJECT/index.html
+        - name: zh
+          replace:
+            - old: red
+              new: orange
+              num: 1
+            - old: "Hello, World!"
+              new: 欢迎!
+              num: 1
+          run:
+            default:
+              - - tsc
+                - $SRC
+              - - $MV
+                - $SRCDIR/$SRCNAME.js
+                - test/out/$JOBNAME/$PROJECT/index.js
+              - - $CP
+                - $SRCDIR/index.html
+                - test/out/$JOBNAME/$PROJECT/index.html
+        - name: ja
+          replace:
+            - old: red
+              new: orange
+              num: 1
+            - old: "Hello, World!"
+              new: ようこそ!
+              num: 1
+          run:
+            default:
+              - - tsc
+                - $SRC
+              - - $MV
+                - $SRCDIR/$SRCNAME.js
+                - test/out/$JOBNAME/$PROJECT/index.js
+              - - $CP
+                - $SRCDIR/index.html
+                - test/out/$JOBNAME/$PROJECT/index.html
