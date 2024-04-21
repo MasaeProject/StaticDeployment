@@ -11,12 +11,9 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const (
-	backupExtension = "StaticDeploymentBackup"
-)
-
 var (
-	osName string
+	osName  string
+	noChLog []BackupItem = []BackupItem{}
 )
 
 func main() {
@@ -66,12 +63,28 @@ func main() {
 		return
 	}
 
+	var solutionLen = len(solutions)
 	for i, solution := range solutions {
-		log.Printf("开始处理: 解决方案 %d : %s\n", i+1, solution.Name)
+		log.Printf("开始处理: 解决方案 %d / %d : %s\n", i+1, solutionLen, solution.Name)
 		if runSolution(solution) {
-			log.Printf("解决方案 %d : %s 处理完毕。\n", i+1, solution.Name)
+			log.Printf("解决方案 %d / %d : %s 处理完毕。\n", i+1, solutionLen, solution.Name)
 		} else {
-			log.Printf("解决方案 %d : %s 处理失败！\n", i+1, solution.Name)
+			log.Printf("解决方案 %d / %d : %s 处理失败！\n", i+1, solutionLen, solution.Name)
+		}
+	}
+
+	if len(backupCache) > 0 {
+		log.Println("警告: 不是所有备份文件都得到还原，请检查配置文件中备份和还原命令是否成对出现！未还原文件：")
+		for i, bakInfo := range backupCache {
+			var jobName Names = bakInfo.JobName
+			log.Printf("%d  解决方案: %s  项目: %s  作业: %s  文件: %s\n", i+1, jobName.Solution, jobName.Project, jobName.Replace, bakInfo.SourceFile)
+		}
+	}
+	if len(noChLog) > 0 {
+		log.Println("警告: 不是所有文件都经过替换，请检查配置文件中的替换设置！替换前和替换后一样的文件有：")
+		for i, bakInfo := range backupCache {
+			var jobName Names = bakInfo.JobName
+			log.Printf("%d  解决方案: %s  项目: %s  作业: %s  文件: %s\n", i+1, jobName.Solution, jobName.Project, jobName.Replace, bakInfo.SourceFile)
 		}
 	}
 }

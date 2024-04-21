@@ -10,6 +10,9 @@
                 - $SRC
                 - test/out/$JOBNAME/$PROJECT/$SRCFILE
         - name: zh
+          prerun:
+            default:
+              - - $BAK
           replace:
             - old: Welcome!
               new: 欢迎!
@@ -21,7 +24,11 @@
             default:
               - - $CP
                 - test/out/$JOBNAME/$PROJECT/$SRCFILE
+              - - $RES
         - name: ja
+          prerun:
+            default:
+              - - $BAK
           replace:
             - old: Welcome!
               new: ようこそ!
@@ -33,10 +40,14 @@
             default:
               - - $CP
                 - test/out/$JOBNAME/$PROJECT/$SRCFILE
+              - - $RES
     - name: p2
       source: test/data/test-project2/index.ts
       replace:
         - name: en
+          prerun:
+            default:
+              - - $BAK
           replace:
             - old: red
               new: orange
@@ -54,7 +65,11 @@
               - - $CP
                 - $SRCDIR/index.html
                 - test/out/$JOBNAME/$PROJECT/index.html
+              - - $RES
         - name: zh
+          prerun:
+            default:
+              - - $BAK
           replace:
             - old: red
               new: orange
@@ -72,7 +87,11 @@
               - - $CP
                 - $SRCDIR/index.html
                 - test/out/$JOBNAME/$PROJECT/index.html
+              - - $RES
         - name: ja
+          prerun:
+            default:
+              - - $BAK
           replace:
             - old: red
               new: orange
@@ -90,3 +109,4 @@
               - - $CP
                 - $SRCDIR/index.html
                 - test/out/$JOBNAME/$PROJECT/index.html
+              - - $RES

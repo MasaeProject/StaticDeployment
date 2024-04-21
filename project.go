@@ -13,18 +13,21 @@ import (
 func runSolution(solution Solution) bool {
 	var names Names = Names{Solution: solution.Name, Project: "", Replace: ""}
 	if solution.PreRun != nil {
+		log.Println("运行解决方案", solution.Name, "的预处理命令:")
 		runExec(*solution.PreRun, "", names)
 	}
+	var projectsLen int = len(solution.Projects)
 	for i, project := range solution.Projects {
-		log.Printf("开始处理: 解决方案: %s  项目 %d : %s\n", names.Solution, i, project.Name)
+		log.Printf("开始处理: 解决方案: %s  项目 %d / %d : %s\n", names.Solution, i+1, projectsLen, project.Name)
 		if runProject(project, names) {
-			log.Printf("项目 %d : %s 处理完毕。\n", i+1, project.Name)
+			log.Printf("项目 %d / %d : %s 处理完毕。\n", i+1, projectsLen, project.Name)
 		} else {
-			log.Printf("项目 %d : %s 处理失败！\n", i+1, project.Name)
+			log.Printf("项目 %d / %d : %s 处理失败！\n", i+1, projectsLen, project.Name)
 			return false
 		}
 	}
 	if solution.Run != nil {
+		log.Println("运行解决方案", solution.Name, "的后处理命令:")
 		runExec(*solution.PreRun, "", names)
 	}
 	return true
@@ -46,18 +49,21 @@ func runProject(project Project, names Names) bool {
 		log.Printf("已加载文件 %s (%d B)\n", project.Source, len(loadFileText))
 	}
 	if project.PreRun != nil {
+		log.Println("运行项目", project.Name, "的预处理命令:")
 		runExec(*project.PreRun, project.Source, names)
 	}
+	var replaceLen int = len(project.Replace)
 	for i, item := range project.Replace {
-		log.Printf("开始处理: 解决方案: %s  项目: %s  作业 %d : %s\n", names.Solution, project.Name, i, item.Name)
+		log.Printf("开始处理: 解决方案: %s  项目: %s  作业 %d / %d : %s\n", names.Solution, project.Name, i+1, replaceLen, item.Name)
 		if runJob(item, f, names) {
-			log.Printf("作业 %d : %s 处理完毕。\n", i+1, item.Name)
+			log.Printf("作业 %d / %d : %s 处理完毕。\n", i+1, replaceLen, item.Name)
 		} else {
-			log.Printf("作业 %d : %s 处理失败！\n", i+1, item.Name)
+			log.Printf("作业 %d / %d : %s 处理失败！\n", i+1, replaceLen, item.Name)
 			return false
 		}
 	}
 	if project.Run != nil {
+		log.Println("运行项目", project.Name, "的后处理命令:")
 		return runExec(*project.Run, project.Source, names)
 	}
 	return true
@@ -66,38 +72,45 @@ func runProject(project Project, names Names) bool {
 func runJob(item ReplaceItem, f FileData, names Names) bool {
 	names.Replace = item.Name
 	f = runReplaceDetail(item.Replace, f)
-	var bak string = f.Path + "." + backupExtension
+	// var bak string = f.Path + "." + backupExtension
 	if item.PreRun != nil {
+		log.Println("运行作业", item.Name, "的预处理命令:")
 		if !runExec(*item.PreRun, f.Path, names) {
 			return false
 		}
 	}
-	var err error = copyFile(f.Path, bak)
-	if err != nil {
-		log.Printf("错误: 备份文件 %s 到 %s 失败: %s\n", f.Path, bak, err)
-		return false
-	}
-	err = os.WriteFile(f.Path, []byte(f.NewString), 0666)
-	if err != nil {
+	// var err error = copyFile(f.Path, bak)
+	// if err != nil {
+	// 	log.Printf("错误: 备份文件 %s 到 %s 失败: %s\n", f.Path, bak, err)
+	// 	return false
+	// }
+	if err := os.WriteFile(f.Path, []byte(f.NewString), 0666); err != nil {
 		log.Printf("错误: 写入文件 %s 失败：%s (%d B -> %d B)\n", f.Path, err, f.LoadSize, f.NewSize)
 		return false
 	} else {
-		log.Printf("已写入文件 %s (%d B -> %d B)\n", f.Path, f.LoadSize, f.NewSize)
+		var noCh = ""
+		if f.LoadSize == f.NewSize {
+			var noChItem BackupItem = BackupItem{SourceFile: f.Path, JobName: names}
+			noChLog = append(noChLog, noChItem)
+			noCh = " (无变化)"
+		}
+		log.Printf("已写入文件 %s (%d B -> %d B)%s\n", f.Path, f.LoadSize, f.NewSize, noCh)
 		if item.Run != nil {
+			log.Println("运行作业", item.Name, "的后处理命令:")
 			if !runExec(*item.Run, f.Path, names) {
 				return false
 			}
 		}
 	}
-	err = removeFile(f.Path)
-	if err != nil {
-		log.Printf("警告: 删除临时文件 %s 失败: %s\n", f.Path, err)
-	}
-	err = RenamePath(bak, f.Path)
-	if err != nil {
-		log.Printf("错误: 恢复文件 %s 到 %s 失败: %s\n", bak, f.Path, err)
-		return false
-	}
+	// err = removeFile(f.Path)
+	// if err != nil {
+	// 	log.Printf("警告: 删除临时文件 %s 失败: %s\n", f.Path, err)
+	// }
+	// err = RenamePath(bak, f.Path)
+	// if err != nil {
+	// 	log.Printf("错误: 恢复文件 %s 到 %s 失败: %s\n", bak, f.Path, err)
+	// 	return false
+	// }
 	return true
 }
 
@@ -115,13 +128,13 @@ func runExec(run Run, srcPath string, names Names) bool {
 		log.Println("错误: 未找到适用于当前操作系统的命令。")
 		return false
 	}
-	for _, cmd := range cmds {
+	srcPath = CleanPath(srcPath)
+	for i, cmd := range cmds {
 		var noEmbCmd = false
 		var cmdLen int = len(cmd)
 		for i, c := range cmd {
 			var nKey string = "$SRC"
 			c = CleanPath(c)
-			srcPath = CleanPath(srcPath)
 			var pathArr []string = strings.Split(srcPath, string(filepath.Separator))
 			var pathArrLen = len(pathArr)
 			var fileFullName string = pathArr[pathArrLen-1]
@@ -180,9 +193,35 @@ func runExec(run Run, srcPath string, names Names) bool {
 			// fmt.Println("SRCFILE", fileFullName, "SRCNAME", fileName, "SRCEXT", extName, "SRCDIRNAME", pathArr[len(pathArr)-1], "SRCDIR", dirPath, "SRC", srcPath)
 			cmd[i] = CleanPath(c)
 		}
-		if cmdLen >= 2 {
+		if cmdLen > 0 {
 			var err error = nil
+			var isOK bool = true
 			switch cmd[0] {
+			case "$BAK":
+				if cmdLen == 1 || (cmdLen == 2 && len(cmd[1]) == 0) {
+					isOK = backup(srcPath, names)
+				}
+				if cmdLen == 2 {
+					isOK = backup(cmd[1], names)
+				}
+			case "$RES":
+				var resCmd Names = names
+				if cmdLen >= 2 && len(cmd[1]) > 0 {
+					resCmd.Solution = cmd[1]
+				}
+				if cmdLen >= 3 && len(cmd[2]) > 0 {
+					resCmd.Project = cmd[2]
+				}
+				if cmdLen >= 3 && len(cmd[3]) > 0 {
+					resCmd.Replace = cmd[3]
+				}
+				if cmdLen == 2 {
+					isOK = restoreSolution(resCmd.Solution)
+				} else if cmdLen == 3 {
+					isOK = restoreProject(resCmd.Solution, resCmd.Project)
+				} else if cmdLen == 4 {
+					isOK = restoreJob(resCmd.Solution, resCmd.Project, resCmd.Replace)
+				}
 			case "$CP":
 				if cmdLen == 3 {
 					err = Copy(cmd[1], cmd[2])
@@ -217,19 +256,23 @@ func runExec(run Run, srcPath string, names Names) bool {
 			if err != nil {
 				log.Printf("错误: 文件操作 %s \"%s\" \"%s\" 失败: %s\n", cmd[0], cmd[1], cmd[2], err)
 				return false
+			} else if !isOK {
+				return false
 			}
 		} else {
 			noEmbCmd = true
 		}
 		if noEmbCmd {
-			return runCMD(cmd)
+			log.Printf("运行命令 %d / %d : %s\n", i+1, cmdLen, strings.Join(cmd, " "))
+			if !runCMD(cmd) {
+				return false
+			}
 		}
 	}
 	return true
 }
 
 func runCMD(cmd []string) bool {
-	log.Println("运行命令:", strings.Join(cmd, " "))
 	ex := exec.Command(cmd[0], cmd[1:]...)
 	ex.Stdout = os.Stdout
 	ex.Stderr = os.Stderr

@@ -50,3 +50,8 @@ type Names struct {
 	Project  string
 	Replace  string
 }
+
+type BackupItem struct {
+	SourceFile string
+	JobName    Names
+}
