@@ -7,22 +7,27 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
 
 var (
-	osName  string
-	noChLog []BackupItem = []BackupItem{}
+	osName       string
+	noChLog      []BackupItem = []BackupItem{}
+	totalIO      uint         = 0
+	totalCMD     uint         = 0
+	totalEXE     uint         = 0
+	totalReplace uint         = 0
 )
 
 func main() {
-
+	var startTime time.Time = time.Now()
 	var solutions []Solution
 	// var projects []Project
 
 	osName = runtime.GOOS
-	log.Println("StaticDeployment v0.0.1 for", osName)
+	log.Println("StaticDeployment v1.0.0 for", osName)
 
 	if len(os.Args) <= 1 {
 		log.Println("必须指定一个配置文件路径。")
@@ -66,10 +71,11 @@ func main() {
 	var solutionLen = len(solutions)
 	for i, solution := range solutions {
 		log.Printf("开始处理: 解决方案 %d / %d : %s\n", i+1, solutionLen, solution.Name)
+		var sTime time.Time = time.Now()
 		if runSolution(solution) {
-			log.Printf("解决方案 %d / %d : %s 处理完毕。\n", i+1, solutionLen, solution.Name)
+			log.Printf("解决方案 %d / %d : %s 处理完毕，用时 %.2f 秒。\n", i+1, solutionLen, solution.Name, time.Since(sTime).Seconds())
 		} else {
-			log.Printf("解决方案 %d / %d : %s 处理失败！\n", i+1, solutionLen, solution.Name)
+			log.Printf("解决方案 %d / %d : %s 处理失败！用时 %.2f 秒。\n", i+1, solutionLen, solution.Name, time.Since(sTime).Seconds())
 		}
 	}
 
@@ -81,12 +87,14 @@ func main() {
 		}
 	}
 	if len(noChLog) > 0 {
-		log.Println("警告: 不是所有文件都经过替换，请检查配置文件中的替换设置！替换前和替换后一样的文件有：")
-		for i, bakInfo := range backupCache {
+		log.Println("警告: 替换前和替换后内容一样的文件有：")
+		for i, bakInfo := range noChLog {
 			var jobName Names = bakInfo.JobName
 			log.Printf("%d  解决方案: %s  项目: %s  作业: %s  文件: %s\n", i+1, jobName.Solution, jobName.Project, jobName.Replace, bakInfo.SourceFile)
 		}
 	}
+	duration := time.Since(startTime)
+	log.Printf("处理结束，用时 %.2f 秒。替换项: %d ; 文件操作: %d ; 执行命令: %d (外部命令: %d )\n", duration.Seconds(), totalReplace, totalIO, totalCMD, totalEXE)
 }
 
 func fileType(file *os.File) byte {

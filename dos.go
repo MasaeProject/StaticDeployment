@@ -11,6 +11,7 @@ import (
 
 func copyFile(src string, dst string) error {
 	log.Printf("复制文件: %s -> %s", src, dst) // CP
+	totalIO++
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -41,6 +42,7 @@ func copyFile(src string, dst string) error {
 
 func copyDirectory(src string, dst string) error {
 	log.Printf("复制文件夹: %s -> %s", src, dst) // CPDIR
+	totalIO++
 	sourceInfo, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -103,6 +105,7 @@ func Copy(src string, dst string) error {
 
 func moveFile(src string, dst string) error {
 	log.Printf("移动文件: %s -> %s", src, dst) // MV
+	totalIO++
 	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
 		return err
 	}
@@ -112,6 +115,7 @@ func moveFile(src string, dst string) error {
 
 func moveDirectory(src string, dst string) error {
 	log.Printf("移动文件夹: %s -> %s", src, dst) // MVDIR
+	totalIO++
 	sourceInfo, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -162,6 +166,7 @@ func Move(src string, dst string) error {
 
 func moveFileSecure(src string, dst string) error {
 	log.Printf("移动文件(复制): %s -> %s", src, dst) // SMV
+	totalIO++
 	if err := copyFile(src, dst); err != nil {
 		return err
 	}
@@ -170,6 +175,7 @@ func moveFileSecure(src string, dst string) error {
 
 func moveDirectorySecure(src string, dst string) error {
 	log.Printf("移动文件夹(复制): %s -> %s", src, dst) // SMVDIR
+	totalIO++
 	if err := copyDirectory(src, dst); err != nil {
 		return err
 	}
@@ -200,6 +206,7 @@ func MoveSecure(src string, dst string) error {
 
 func removeFile(filePath string) error {
 	log.Printf("删除文件: %s", filePath) // RM
+	totalIO++
 	err := os.Remove(filePath)
 	if err != nil {
 		return err
@@ -209,6 +216,7 @@ func removeFile(filePath string) error {
 
 func removeDirectory(dirPath string) error {
 	log.Printf("删除文件夹: %s", dirPath) // RMDIR
+	totalIO++
 	err := os.RemoveAll(dirPath)
 	if err != nil {
 		return err
@@ -233,6 +241,7 @@ func Remove(path string) error {
 
 func RemoveFileSecure(filename string) error {
 	log.Printf("安全删除文件: %s", filename) // SRM
+	totalIO++
 	file, err := os.OpenFile(filename, os.O_WRONLY, 0)
 	if err != nil {
 		return err
@@ -263,6 +272,7 @@ func RemoveFileSecure(filename string) error {
 
 func RemoveDirectorySecure(dirPath string) error {
 	log.Printf("安全删除文件夹: %s", dirPath) // SRMDIR
+	totalIO++
 	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -301,6 +311,7 @@ func RemoveSecure(path string) error {
 
 func RenamePath(oldPath, newPath string) error {
 	log.Printf("重命名: %s -> %s", oldPath, newPath) // REN
+	totalIO++
 	err := os.Rename(oldPath, newPath)
 	if err != nil {
 		return err

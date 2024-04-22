@@ -61,7 +61,7 @@ func restore(bakPath string, i int) bool {
 			return false
 		}
 	}
-	if err := Copy(bakPath, srcPath); err != nil {
+	if err := RenamePath(bakPath, srcPath); err != nil {
 		log.Printf("错误: 从 %s 还原到 %s 失败: %s\n", bakPath, srcPath, err)
 		return false
 	}
@@ -107,5 +107,7 @@ func restoreJob(solutionName, projectName, jobName string) bool {
 func rmbackupCache(index int) {
 	if index > 0 && index <= len(backupCache) {
 		backupCache = append(backupCache[:index-1], backupCache[index:]...)
+	} else if index == 0 {
+		backupCache = backupCache[1:]
 	}
 }

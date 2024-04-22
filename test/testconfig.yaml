@@ -13,6 +13,7 @@
           prerun:
             default:
               - - $BAK
+                - $SRC
           replace:
             - old: Welcome!
               new: 欢迎!
@@ -25,6 +26,9 @@
               - - $CP
                 - test/out/$JOBNAME/$PROJECT/$SRCFILE
               - - $RES
+                - $SOLUTION
+                - $PROJECT
+                - $JOBNAME
         - name: ja
           prerun:
             default:
@@ -110,3 +114,4 @@
                 - $SRCDIR/index.html
                 - test/out/$JOBNAME/$PROJECT/index.html
               - - $RES
+
