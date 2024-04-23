@@ -76,6 +76,7 @@ func main() {
 			log.Printf("解决方案 %d / %d : %s 处理完毕，用时 %.2f 秒。\n", i+1, solutionLen, solution.Name, time.Since(sTime).Seconds())
 		} else {
 			log.Printf("解决方案 %d / %d : %s 处理失败！用时 %.2f 秒。\n", i+1, solutionLen, solution.Name, time.Since(sTime).Seconds())
+			return
 		}
 	}
 
@@ -94,7 +95,7 @@ func main() {
 		}
 	}
 	duration := time.Since(startTime)
-	log.Printf("处理结束，用时 %.2f 秒。替换项: %d ; 文件操作: %d ; 执行命令: %d (外部命令: %d )\n", duration.Seconds(), totalReplace, totalIO, totalCMD, totalEXE)
+	log.Printf("处理成功，用时 %.2f 秒。替换项: %d ; 文件操作: %d ; 执行命令: %d (外部命令: %d )\n", duration.Seconds(), totalReplace, totalIO, totalCMD, totalEXE)
 }
 
 func fileType(file *os.File) byte {

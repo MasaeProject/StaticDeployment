@@ -63,12 +63,12 @@ func runProject(project Project, names Names) bool {
 	}
 	var replaceLen int = len(project.Replace)
 	for i, item := range project.Replace {
-		log.Printf("开始处理: 解决方案: %s  项目: %s  作业 %d / %d : %s\n", names.Solution, project.Name, i+1, replaceLen, item.Name)
+		log.Printf("开始处理: 解决方案: %s  项目: %s  替换 %d / %d : %s\n", names.Solution, project.Name, i+1, replaceLen, item.Name)
 		var sTime time.Time = time.Now()
 		if runJob(item, f, names) {
-			log.Printf("作业 %d / %d : %s 处理完毕，用时 %.2f 秒。\n", i+1, replaceLen, item.Name, time.Since(sTime).Seconds())
+			log.Printf("替换 %d / %d : %s 处理完毕，用时 %.2f 秒。\n", i+1, replaceLen, item.Name, time.Since(sTime).Seconds())
 		} else {
-			log.Printf("作业 %d / %d : %s 处理失败！用时 %.2f 秒。\n", i+1, replaceLen, item.Name, time.Since(sTime).Seconds())
+			log.Printf("替换 %d / %d : %s 处理失败！用时 %.2f 秒。\n", i+1, replaceLen, item.Name, time.Since(sTime).Seconds())
 			return false
 		}
 	}
@@ -89,7 +89,7 @@ func runJob(item ReplaceItem, f FileData, names Names) bool {
 	f = runReplaceDetail(item.Replace, f)
 	// var bak string = f.Path + "." + backupExtension
 	if item.PreRun != nil {
-		log.Println("运行作业", item.Name, "的预处理命令:")
+		log.Println("运行替换", item.Name, "的预处理命令:")
 		if !runExec(*item.PreRun, f.Path, names) {
 			return false
 		}
@@ -103,24 +103,23 @@ func runJob(item ReplaceItem, f FileData, names Names) bool {
 	if err := os.WriteFile(f.Path, []byte(f.NewString), 0666); err != nil {
 		log.Printf("错误: 写入文件 %s 失败：%s (%d B -> %d B)\n", f.Path, err, f.LoadSize, f.NewSize)
 		return false
-	} else {
-		var noCh = ""
-		if f.LoadString == f.NewString {
-			var noChItem BackupItem = BackupItem{SourceFile: f.Path, JobName: names}
-			noChLog = append(noChLog, noChItem)
-			noCh = " (无变化)"
-			// fmt.Println("========== 无变化 ==========")
-			// fmt.Printf("文件: %v\n", noChItem)
-			// fmt.Printf("方案: %v\n", item.Replace)
-			// fmt.Println(f.LoadString)
-			// fmt.Println("====================")
-		}
-		log.Printf("已写入文件 %s (%d B -> %d B)%s\n", f.Path, f.LoadSize, f.NewSize, noCh)
-		if item.Run != nil {
-			log.Println("运行作业", item.Name, "的后处理命令:")
-			if !runExec(*item.Run, f.Path, names) {
-				return false
-			}
+	}
+	var noCh = ""
+	if f.LoadString == f.NewString {
+		var noChItem BackupItem = BackupItem{SourceFile: f.Path, JobName: names}
+		noChLog = append(noChLog, noChItem)
+		noCh = " (无变化)"
+		// fmt.Println("========== 无变化 ==========")
+		// fmt.Printf("文件: %v\n", noChItem)
+		// fmt.Printf("方案: %v\n", item.Replace)
+		// fmt.Println(f.LoadString)
+		// fmt.Println("====================")
+	}
+	log.Printf("已写入文件 %s (%d B -> %d B)%s\n", f.Path, f.LoadSize, f.NewSize, noCh)
+	if item.Run != nil {
+		log.Println("运行替换", item.Name, "的后处理命令:")
+		if !runExec(*item.Run, f.Path, names) {
+			return false
 		}
 	}
 	// err = removeFile(f.Path)
@@ -250,7 +249,7 @@ func runExec(run Run, srcPath string, names Names) bool {
 			if cmdLen >= 3 && len(cmd[2]) > 0 {
 				resCmd.Project = cmd[2]
 			}
-			if cmdLen >= 3 && len(cmd[3]) > 0 {
+			if cmdLen >= 4 && len(cmd[3]) > 0 {
 				resCmd.Replace = cmd[3]
 			}
 			if cmdLen == 2 {
@@ -332,19 +331,22 @@ func runCMD(cmd []string, dir string) bool {
 }
 
 func runReplaceDetail(replace []ReplaceDetail, f FileData) FileData {
-	f.NewString = f.LoadString
+	var newString string = f.LoadString
 	if len(replace) > 0 {
 		for _, detail := range replace {
+			var count int = strings.Count(newString, detail.Old)
 			if detail.Num < 0 {
-				var count int = strings.Count(f.LoadString, detail.Old)
-				f.NewString = strings.ReplaceAll(f.LoadString, detail.Old, detail.New)
-				totalReplace = totalReplace + uint(count)
+				newString = strings.ReplaceAll(newString, detail.Old, detail.New)
 			} else {
-				f.NewString = strings.Replace(f.LoadString, detail.Old, detail.New, detail.Num)
-				totalReplace++
+				newString = strings.Replace(newString, detail.Old, detail.New, detail.Num)
+				if count > detail.Num {
+					count = detail.Num
+				}
 			}
+			totalReplace = totalReplace + uint(count)
 		}
 	}
-	f.NewSize = len([]byte(f.NewString))
+	f.NewString = newString
+	f.NewSize = len([]byte(newString))
 	return f
 }

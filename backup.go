@@ -46,7 +46,6 @@ func backup(srcPath string, names Names) bool {
 
 func restore(bakPath string, i int) bool {
 	var isBak, srcPath = isBackupPath(bakPath)
-	log.Printf("还原文件 %d / %d : %s\n", i, len(backupCache), srcPath)
 	if !isBak {
 		log.Printf("错误: %s 不是备份文件。\n", bakPath)
 		return false
@@ -69,39 +68,62 @@ func restore(bakPath string, i int) bool {
 }
 
 func restoreSolution(solutionName string) bool {
+	var isOK bool = false
+	var backupCacheLen int = len(backupCache)
 	for i, item := range backupCache {
 		if item.JobName.Solution == solutionName {
 			var bakPath = item.SourceFile + "." + backupExtension
 			rmbackupCache(i)
-			return restore(bakPath, i)
+			log.Printf("还原文件 %d / %d : %s\n", i+1, backupCacheLen, item.SourceFile)
+			if !restore(bakPath, i) {
+				return false
+			} else {
+				isOK = true
+			}
 		}
 	}
-	log.Printf("错误: 未找到解决方案 %s 的备份文件。\n", solutionName)
-	return false
+	if !isOK {
+		log.Printf("错误: 未找到解决方案 %s 的备份文件。\n", solutionName)
+	}
+	return isOK
 }
 
 func restoreProject(solutionName, projectName string) bool {
+	var isOK bool = false
 	for i, item := range backupCache {
 		if item.JobName.Solution == solutionName && item.JobName.Project == projectName {
 			var bakPath = item.SourceFile + "." + backupExtension
 			rmbackupCache(i)
-			return restore(bakPath, i)
+			if !restore(bakPath, i) {
+				return false
+			} else {
+				isOK = true
+			}
 		}
 	}
-	log.Printf("错误: 未找到解决方案 %s 项目 %s 的备份文件。\n", solutionName, projectName)
-	return false
+	if !isOK {
+		log.Printf("错误: 未找到解决方案 %s 项目 %s 的备份文件。\n", solutionName, projectName)
+	}
+	return isOK
 }
 
 func restoreJob(solutionName, projectName, jobName string) bool {
+	var isOK bool = false
 	for i, item := range backupCache {
 		if item.JobName.Solution == solutionName && item.JobName.Project == projectName && item.JobName.Replace == jobName {
 			var bakPath = item.SourceFile + "." + backupExtension
 			rmbackupCache(i)
-			return restore(bakPath, i)
+			if !restore(bakPath, i) {
+				return false
+			} else {
+				isOK = true
+			}
 		}
 	}
-	log.Printf("错误: 未找到解决方案 %s 项目 %s 作业 %s 的备份文件。\n", solutionName, projectName, jobName)
-	return false
+	if !isOK {
+		log.Printf("错误: 未找到解决方案 %s 项目 %s 作业 %s 的备份文件。\n", solutionName, projectName, jobName)
+	}
+	return isOK
 }
 
 func rmbackupCache(index int) {

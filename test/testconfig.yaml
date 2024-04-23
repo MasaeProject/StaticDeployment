@@ -114,4 +114,132 @@
                 - $SRCDIR/index.html
                 - test/out/$JOBNAME/$PROJECT/index.html
               - - $RES
-
+- name: test3
+  prerun:
+    default:
+      - - $CMDDIR
+        - test/data/test-project3
+      - - npm
+        - run
+        - build
+  projects:
+    - name: html-en
+      source: test/data/test-project3/index.html
+      prerun:
+        default:
+          - - $BAK
+      replace:
+        - name: index-html
+          replace:
+            - old: 网站正在建设中 - 雅诗 TS 网页项目模板
+              new: It works!
+              num: 1
+    - name: en
+      source: test/data/test-project3/dist/typescript-web-template.js
+      prerun:
+        default:
+          - - $BAK
+      replace:
+        - name: main-js
+          replace:
+            - old: 它运行了！但这里什么都没有。
+              new: It works! But there is nothing here.
+              num: 1
+            - old: 请参考源码文件中的注释和 README.md 开始编辑吧！
+              new: StaticDeployment runs successfully!
+              num: 1
+            - old: 浏览在线指南和更新
+              new:
+              num: 1
+      run:
+        default:
+          - - $CP
+            - test/data/test-project3/index.html
+            - test/out/$JOBNAME/$PROJECT/index.html
+          - - $CP
+            - test/data/test-project3/dist/$SRCNAME.css
+            - test/out/$JOBNAME/$PROJECT/dist/$SRCNAME.css
+          - - $CP
+            - $SRC
+            - test/out/$JOBNAME/$PROJECT/dist/$SRCFILE
+          - - $RES
+            - $SOLUTION
+    - name: html-cn
+      source: test/data/test-project3/index.html
+      prerun:
+        default:
+          - - $BAK
+      replace:
+        - name: index-html
+          replace:
+            - old: 网站正在建设中 - 雅诗 TS 网页项目模板
+              new: 它运行了！
+              num: 1
+    - name: cn
+      source: test/data/test-project3/dist/typescript-web-template.js
+      prerun:
+        default:
+          - - $BAK
+      replace:
+        - name: main-js
+          replace:
+            - old: 请参考源码文件中的注释和 README.md 开始编辑吧！
+              new: StaticDeployment 运行成功！
+              num: 1
+            - old: 浏览在线指南和更新
+              new:
+              num: 1
+      run:
+        default:
+          - - $CP
+            - test/data/test-project3/index.html
+            - test/out/$JOBNAME/$PROJECT/index.html
+          - - $CP
+            - test/data/test-project3/dist/$SRCNAME.css
+            - test/out/$JOBNAME/$PROJECT/dist/$SRCNAME.css
+          - - $CP
+            - $SRC
+            - test/out/$JOBNAME/$PROJECT/dist/$SRCFILE
+          - - $RES
+            - $SOLUTION
+    - name: html-ja
+      source: test/data/test-project3/index.html
+      prerun:
+        default:
+          - - $BAK
+      replace:
+        - name: index-html
+          replace:
+            - old: 网站正在建设中 - 雅诗 TS 网页项目模板
+              new: それは動作します！
+              num: 1
+    - name: ja
+      source: test/data/test-project3/dist/typescript-web-template.js
+      prerun:
+        default:
+          - - $BAK
+      replace:
+        - name: main-js
+          replace:
+            - old: 它运行了！但这里什么都没有。
+              new: それは動作します！ しかし、ここには何もありません。
+              num: 1
+            - old: 请参考源码文件中的注释和 README.md 开始编辑吧！
+              new: StaticDeployment が正常に実行されました！
+              num: 1
+            - old: 浏览在线指南和更新
+              new:
+              num: 1
+      run:
+        default:
+          - - $CP
+            - test/data/test-project3/index.html
+            - test/out/$JOBNAME/$PROJECT/index.html
+          - - $CP
+            - test/data/test-project3/dist/$SRCNAME.css
+            - test/out/$JOBNAME/$PROJECT/dist/$SRCNAME.css
+          - - $CP
+            - $SRC
+            - test/out/$JOBNAME/$PROJECT/dist/$SRCFILE
+          - - $RES
+            - $SOLUTION
