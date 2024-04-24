@@ -121,7 +121,7 @@
         - test/data/test-project3
       - - npm
         - run
-        - build
+        - release
   projects:
     - name: html-en
       source: test/data/test-project3/index.html
@@ -153,6 +153,9 @@
               num: 1
       run:
         default:
+          - - $ZHCODECONV
+            - $SRC
+            - md5
           - - $CP
             - test/data/test-project3/index.html
             - test/out/$JOBNAME/$PROJECT/index.html
@@ -191,6 +194,9 @@
               num: 1
       run:
         default:
+          - - $ZHCODECONV
+            - $SRC
+            - md5
           - - $CP
             - test/data/test-project3/index.html
             - test/out/$JOBNAME/$PROJECT/index.html
@@ -232,6 +238,9 @@
               num: 1
       run:
         default:
+          - - $ZHCODECONV
+            - $SRC
+            - md5
           - - $CP
             - test/data/test-project3/index.html
             - test/out/$JOBNAME/$PROJECT/index.html
