@@ -9,6 +9,7 @@ import (
 	"strings"
 	"syscall"
 
+	minify "github.com/MasaeProject/StaticDeployment/plugin/minify"
 	zhcodeconv "github.com/MasaeProject/StaticDeployment/plugin/zhcodeconv"
 )
 
@@ -166,12 +167,18 @@ func runExec(run Run, srcPath string, names Names) bool {
 				err = RenamePath(srcPath, cmd[1])
 			}
 		case "$ZHCODECONV":
-			err = zhcodeconv.InitWithCmd(cmd, srcPath)
+			var lenCh [2]int
+			lenCh, err = zhcodeconv.InitWithCmd(cmd, srcPath)
+			log.Printf("非 ASCII 变量和函数名转换: %s ( %d -> %d )\n", srcPath, lenCh[0], lenCh[1])
+		case "$MINIFY":
+			var lenCh [2]int
+			lenCh, err = minify.InitWithCmd(cmd, srcPath)
+			log.Printf("代码压缩: %s ( %d -> %d )\n", srcPath, lenCh[0], lenCh[1])
 		default:
 			noEmbCmd = true
 		}
 		if err != nil {
-			log.Printf("错误: 文件操作 %s \"%s\" \"%s\" 失败: %s\n", cmd[0], cmd[1], cmd[2], err)
+			log.Printf("错误: 文件操作 %s 失败: %s\n", cmd[0], err)
 			return false
 		} else if !isOK {
 			return false

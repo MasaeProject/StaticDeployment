@@ -1,4 +1,4 @@
-package zhcodeconv
+package minify
 
 import (
 	"crypto/md5"
@@ -8,11 +8,12 @@ import (
 	"unicode"
 )
 
-func InitWithCmd(cmd []string, srcPath string) error {
+func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 	var cmdLen int = len(cmd)
 	var path string = ""
 	var outPath string = ""
 	var mode string = "hex"
+	var DataLen [2]int = [2]int{-1, -1}
 	if cmdLen <= 1 {
 		path = srcPath
 	} else if cmdLen >= 2 {
@@ -29,14 +30,16 @@ func InitWithCmd(cmd []string, srcPath string) error {
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return err
+		return DataLen, err
 	}
+	DataLen[0] = len(data)
 	var newCode []byte = replaceNonAscii(data, mode)
+	DataLen[1] = len(newCode)
 	err = os.WriteFile(outPath, newCode, 0644)
 	if err != nil {
-		return err
+		return DataLen, err
 	}
-	return nil
+	return DataLen, nil
 }
 
 func replaceNonAscii(code []byte, mode string) []byte {

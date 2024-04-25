@@ -44,7 +44,7 @@ func backup(srcPath string, names Names) bool {
 	return true
 }
 
-func restore(bakPath string, i int) bool {
+func restore(bakPath string) bool {
 	var isBak, srcPath = isBackupPath(bakPath)
 	if !isBak {
 		log.Printf("错误: %s 不是备份文件。\n", bakPath)
@@ -75,7 +75,7 @@ func restoreSolution(solutionName string) bool {
 			var bakPath = item.SourceFile + "." + backupExtension
 			rmbackupCache(i)
 			log.Printf("还原文件 %d / %d : %s\n", i+1, backupCacheLen, item.SourceFile)
-			if !restore(bakPath, i) {
+			if !restore(bakPath) {
 				return false
 			} else {
 				isOK = true
@@ -94,7 +94,7 @@ func restoreProject(solutionName, projectName string) bool {
 		if item.JobName.Solution == solutionName && item.JobName.Project == projectName {
 			var bakPath = item.SourceFile + "." + backupExtension
 			rmbackupCache(i)
-			if !restore(bakPath, i) {
+			if !restore(bakPath) {
 				return false
 			} else {
 				isOK = true
@@ -113,7 +113,7 @@ func restoreJob(solutionName, projectName, jobName string) bool {
 		if item.JobName.Solution == solutionName && item.JobName.Project == projectName && item.JobName.Replace == jobName {
 			var bakPath = item.SourceFile + "." + backupExtension
 			rmbackupCache(i)
-			if !restore(bakPath, i) {
+			if !restore(bakPath) {
 				return false
 			} else {
 				isOK = true

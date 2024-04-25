@@ -63,6 +63,14 @@
             default:
               - - tsc
                 - $SRC
+              - - $MINIFY
+                - $SRCDIR/$SRCNAME.js
+                - js
+                - $SRCDIR/$SRCNAME.js
+              - - $MINIFY
+                - $SRCDIR/index.html
+                - html
+                - $SRCDIR/index.html
               - - $MV
                 - $SRCDIR/$SRCNAME.js
                 - test/out/$JOBNAME/$PROJECT/index.js
@@ -85,6 +93,10 @@
             default:
               - - tsc
                 - $SRC
+              - - $MINIFY
+                - $SRCDIR/$SRCNAME.js
+              - - $MINIFY
+                - $SRCDIR/index.html
               - - $MV
                 - $SRCDIR/$SRCNAME.js
                 - test/out/$JOBNAME/$PROJECT/index.js
@@ -107,6 +119,10 @@
             default:
               - - tsc
                 - $SRC
+              - - $MINIFY
+                - $SRCDIR/$SRCNAME.js
+              - - $MINIFY
+                - $SRCDIR/index.html
               - - $MV
                 - $SRCDIR/$SRCNAME.js
                 - test/out/$JOBNAME/$PROJECT/index.js
