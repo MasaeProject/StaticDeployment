@@ -1,0 +1,43 @@
+{
+    "FixedFileInfo": {
+        "FileVersion": {
+            "Major": 1,
+            "Minor": 0,
+            "Patch": 0,
+            "Build": 0
+        },
+        "ProductVersion": {
+            "Major": 1,
+            "Minor": 0,
+            "Patch": 0,
+            "Build": 0
+        },
+        "FileFlagsMask": "3f",
+        "FileFlags ": "00",
+        "FileOS": "040004",
+        "FileType": "01",
+        "FileSubType": "00"
+    },
+    "StringFileInfo": {
+        "Comments": "通过字符替换将一个网页生成为多个版本。适用于做好一张网页后，需要生成多个版本的情况。例如多语言或者只有少部分变化，又不想使用动态网页的情况。本程序用于通过配置文件托管这一流程，并且能够处理这之间的编译和转换等流程，保持原有项目的编译脚本可用并自动执行他们。",
+        "CompanyName": "Kagurazaka Yashi",
+        "FileDescription": "通过字符替换将一个网页生成为多个版本。",
+        "FileVersion": "1.0.0.0",
+        "InternalName": "StaticDeployment",
+        "LegalCopyright": "2024, Kagurazaka Yashi.",
+        "LegalTrademarks": "Kagurazaka Yashi",
+        "OriginalFilename": "main.exe",
+        "PrivateBuild": "",
+        "ProductName": "StaticDeployment",
+        "ProductVersion": "1.0.0.0",
+        "SpecialBuild": ""
+    },
+    "VarFileInfo": {
+        "Translation": {
+            "LangID": "0804",
+            "CharsetID": "04B0"
+        }
+    },
+    "IconPath": "icon.ico",
+    "ManifestPath": "main.exe.manifest"
+}

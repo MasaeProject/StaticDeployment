@@ -1,3 +1,4 @@
+//go:generate goversioninfo -icon=ico/icon.ico -manifest=main.exe.manifest -arm=true
 package main
 
 import (
@@ -28,6 +29,7 @@ func main() {
 
 	osName = runtime.GOOS
 	log.Println("StaticDeployment v1.0.0 for", osName)
+	log.Println("https://github.com/MasaeProject/StaticDeployment")
 
 	if len(os.Args) <= 1 {
 		log.Println("必须指定一个配置文件路径。")

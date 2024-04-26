@@ -1,135 +1,523 @@
 [
     {
-        "name": "test-project1",
-        "source": "test/data/test-project1/index.html",
-        "replace": [
+      "name": "test1-2",
+      "projects": [
+        {
+          "name": "p1",
+          "source": "test/data/test-project1/index.html",
+          "replace": [
             {
-                "to": "test/out/en/p1/index.html",
-                "replace": []
+              "name": "en",
+              "prerun": {
+                "default": [
+                  [
+                    "$CP",
+                    "$SRC",
+                    "test/out/$JOBNAME/$PROJECT/$SRCFILE"
+                  ]
+                ]
+              }
             },
             {
-                "to": "test/out/zh/p1/index.html",
-                "replace": [
-                    {
-                        "old": "Welcome!",
-                        "new": "欢迎!",
-                        "num": 1
-                    },
-                    {
-                        "old": "Kagurazaka Yashi",
-                        "new": "神楽坂雅詩",
-                        "num": -1
-                    }
+              "name": "zh",
+              "prerun": {
+                "default": [
+                  [
+                    "$BAK",
+                    "$SRC"
+                  ]
                 ]
+              },
+              "replace": [
+                {
+                  "old": "Welcome!",
+                  "new": "欢迎!",
+                  "num": 1
+                },
+                {
+                  "old": "Kagurazaka Yashi",
+                  "new": "神楽坂雅詩",
+                  "num": -1
+                }
+              ],
+              "run": {
+                "default": [
+                  [
+                    "$CP",
+                    "test/out/$JOBNAME/$PROJECT/$SRCFILE"
+                  ],
+                  [
+                    "$RES",
+                    "$SOLUTION",
+                    "$PROJECT",
+                    "$JOBNAME"
+                  ]
+                ]
+              }
             },
             {
-                "to": "test/out/ja/p1/index.html",
-                "replace": [
-                    {
-                        "old": "Welcome!",
-                        "new": "ようこそ!",
-                        "num": 1
-                    },
-                    {
-                        "old": "Kagurazaka Yashi",
-                        "new": "かぐらざか みやび",
-                        "num": -1
-                    }
+              "name": "ja",
+              "prerun": {
+                "default": [
+                  [
+                    "$BAK"
+                  ]
                 ]
+              },
+              "replace": [
+                {
+                  "old": "Welcome!",
+                  "new": "ようこそ!",
+                  "num": 1
+                },
+                {
+                  "old": "Kagurazaka Yashi",
+                  "new": "かぐらざか みやび",
+                  "num": -1
+                }
+              ],
+              "run": {
+                "default": [
+                  [
+                    "$CP",
+                    "test/out/$JOBNAME/$PROJECT/$SRCFILE"
+                  ],
+                  [
+                    "$RES"
+                  ]
+                ]
+              }
             }
-        ]
+          ]
+        },
+        {
+          "name": "p2",
+          "source": "test/data/test-project2/index.ts",
+          "replace": [
+            {
+              "name": "en",
+              "prerun": {
+                "default": [
+                  [
+                    "$BAK"
+                  ]
+                ]
+              },
+              "replace": [
+                {
+                  "old": "red",
+                  "new": "orange",
+                  "num": 1
+                },
+                {
+                  "old": "Hello, World!",
+                  "new": "Welcome!",
+                  "num": 1
+                }
+              ],
+              "run": {
+                "default": [
+                  [
+                    "tsc",
+                    "$SRC"
+                  ],
+                  [
+                    "$MINIFY",
+                    "$SRCDIR/$SRCNAME.js",
+                    "js",
+                    "$SRCDIR/$SRCNAME.js"
+                  ],
+                  [
+                    "$MINIFY",
+                    "$SRCDIR/index.html",
+                    "html",
+                    "$SRCDIR/index.html"
+                  ],
+                  [
+                    "$MV",
+                    "$SRCDIR/$SRCNAME.js",
+                    "test/out/$JOBNAME/$PROJECT/index.js"
+                  ],
+                  [
+                    "$CP",
+                    "$SRCDIR/index.html",
+                    "test/out/$JOBNAME/$PROJECT/index.html"
+                  ],
+                  [
+                    "$RES"
+                  ]
+                ]
+              }
+            },
+            {
+              "name": "zh",
+              "prerun": {
+                "default": [
+                  [
+                    "$BAK"
+                  ]
+                ]
+              },
+              "replace": [
+                {
+                  "old": "red",
+                  "new": "orange",
+                  "num": 1
+                },
+                {
+                  "old": "Hello, World!",
+                  "new": "欢迎!",
+                  "num": 1
+                }
+              ],
+              "run": {
+                "default": [
+                  [
+                    "tsc",
+                    "$SRC"
+                  ],
+                  [
+                    "$MINIFY",
+                    "$SRCDIR/$SRCNAME.js"
+                  ],
+                  [
+                    "$MINIFY",
+                    "$SRCDIR/index.html"
+                  ],
+                  [
+                    "$MV",
+                    "$SRCDIR/$SRCNAME.js",
+                    "test/out/$JOBNAME/$PROJECT/index.js"
+                  ],
+                  [
+                    "$CP",
+                    "$SRCDIR/index.html",
+                    "test/out/$JOBNAME/$PROJECT/index.html"
+                  ],
+                  [
+                    "$RES"
+                  ]
+                ]
+              }
+            },
+            {
+              "name": "ja",
+              "prerun": {
+                "default": [
+                  [
+                    "$BAK"
+                  ]
+                ]
+              },
+              "replace": [
+                {
+                  "old": "red",
+                  "new": "orange",
+                  "num": 1
+                },
+                {
+                  "old": "Hello, World!",
+                  "new": "ようこそ!",
+                  "num": 1
+                }
+              ],
+              "run": {
+                "default": [
+                  [
+                    "tsc",
+                    "$SRC"
+                  ],
+                  [
+                    "$MINIFY",
+                    "$SRCDIR/$SRCNAME.js"
+                  ],
+                  [
+                    "$MINIFY",
+                    "$SRCDIR/index.html"
+                  ],
+                  [
+                    "$MV",
+                    "$SRCDIR/$SRCNAME.js",
+                    "test/out/$JOBNAME/$PROJECT/index.js"
+                  ],
+                  [
+                    "$CP",
+                    "$SRCDIR/index.html",
+                    "test/out/$JOBNAME/$PROJECT/index.html"
+                  ],
+                  [
+                    "$RES"
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
     },
     {
-        "name": "test-project2",
-        "source": "test/data/test-project2/index.ts",
-        "run": {
-            "default": [
-                [
-                    "cp",
-                    "test/data/test-project2/index.html",
-                    "test/out/en/p2/index.html"
-                ]
-            ],
-            "windows": [
-                [
-                    "cmd",
-                    "/C",
-                    "COPY",
-                    "test\\data\\test-project2\\index.html",
-                    "test\\out\\en\\p2\\index.html"
-                ]
-            ]
-        },
-        "replace": [
-            {
-                "to": "test/out/en/p2/index.ts",
-                "replace": [
-                    {
-                        "old": "red",
-                        "new": "orange",
-                        "num": 1
-                    },
-                    {
-                        "old": "Hello, World!",
-                        "new": "Welcome!",
-                        "num": 1
-                    }
-                ],
-                "run": {
-                    "default": [
-                        [
-                            "tsc",
-                            "test/out/en/p2/index.ts"
-                        ]
-                    ]
-                }
-            },
-            {
-                "to": "test/out/zh/p2/index.ts",
-                "replace": [
-                    {
-                        "old": "red",
-                        "new": "orange",
-                        "num": 1
-                    },
-                    {
-                        "old": "Hello, World!",
-                        "new": "欢迎!",
-                        "num": 1
-                    }
-                ],
-                "run": {
-                    "default": [
-                        [
-                            "tsc",
-                            "test/out/zh/p2/index.ts"
-                        ]
-                    ]
-                }
-            },
-            {
-                "to": "test/out/ja/p2/index.ts",
-                "replace": [
-                    {
-                        "old": "red",
-                        "new": "orange",
-                        "num": 1
-                    },
-                    {
-                        "old": "Hello, World!",
-                        "new": "ようこそ!",
-                        "num": 1
-                    }
-                ],
-                "run": {
-                    "default": [
-                        [
-                            "tsc",
-                            "test/out/ja/p2/index.ts"
-                        ]
-                    ]
-                }
-            }
+      "name": "test3",
+      "prerun": {
+        "default": [
+          [
+            "$CMDDIR",
+            "test/data/test-project3"
+          ],
+          [
+            "npm",
+            "run",
+            "release"
+          ]
         ]
+      },
+      "projects": [
+        {
+          "name": "html-en",
+          "source": "test/data/test-project3/index.html",
+          "prerun": {
+            "default": [
+              [
+                "$BAK"
+              ]
+            ]
+          },
+          "replace": [
+            {
+              "name": "index-html",
+              "replace": [
+                {
+                  "old": "网站正在建设中 - 雅诗 TS 网页项目模板",
+                  "new": "It works!",
+                  "num": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "en",
+          "source": "test/data/test-project3/dist/typescript-web-template.js",
+          "prerun": {
+            "default": [
+              [
+                "$BAK"
+              ]
+            ]
+          },
+          "replace": [
+            {
+              "name": "main-js",
+              "replace": [
+                {
+                  "old": "它运行了！但这里什么都没有。",
+                  "new": "It works! But there is nothing here.",
+                  "num": 1
+                },
+                {
+                  "old": "请参考源码文件中的注释和 README.md 开始编辑吧！",
+                  "new": "StaticDeployment runs successfully!",
+                  "num": 1
+                },
+                {
+                  "old": "浏览在线指南和更新",
+                  "new": null,
+                  "num": 1
+                }
+              ]
+            }
+          ],
+          "run": {
+            "default": [
+              [
+                "$ZHCODECONV",
+                "$SRC",
+                "md5"
+              ],
+              [
+                "$CP",
+                "test/data/test-project3/index.html",
+                "test/out/$JOBNAME/$PROJECT/index.html"
+              ],
+              [
+                "$CP",
+                "test/data/test-project3/dist/$SRCNAME.css",
+                "test/out/$JOBNAME/$PROJECT/dist/$SRCNAME.css"
+              ],
+              [
+                "$CP",
+                "$SRC",
+                "test/out/$JOBNAME/$PROJECT/dist/$SRCFILE"
+              ],
+              [
+                "$RES",
+                "$SOLUTION"
+              ]
+            ]
+          }
+        },
+        {
+          "name": "html-cn",
+          "source": "test/data/test-project3/index.html",
+          "prerun": {
+            "default": [
+              [
+                "$BAK"
+              ]
+            ]
+          },
+          "replace": [
+            {
+              "name": "index-html",
+              "replace": [
+                {
+                  "old": "网站正在建设中 - 雅诗 TS 网页项目模板",
+                  "new": "它运行了！",
+                  "num": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "cn",
+          "source": "test/data/test-project3/dist/typescript-web-template.js",
+          "prerun": {
+            "default": [
+              [
+                "$BAK"
+              ]
+            ]
+          },
+          "replace": [
+            {
+              "name": "main-js",
+              "replace": [
+                {
+                  "old": "请参考源码文件中的注释和 README.md 开始编辑吧！",
+                  "new": "StaticDeployment 运行成功！",
+                  "num": 1
+                },
+                {
+                  "old": "浏览在线指南和更新",
+                  "new": null,
+                  "num": 1
+                }
+              ]
+            }
+          ],
+          "run": {
+            "default": [
+              [
+                "$ZHCODECONV",
+                "$SRC",
+                "md5"
+              ],
+              [
+                "$CP",
+                "test/data/test-project3/index.html",
+                "test/out/$JOBNAME/$PROJECT/index.html"
+              ],
+              [
+                "$CP",
+                "test/data/test-project3/dist/$SRCNAME.css",
+                "test/out/$JOBNAME/$PROJECT/dist/$SRCNAME.css"
+              ],
+              [
+                "$CP",
+                "$SRC",
+                "test/out/$JOBNAME/$PROJECT/dist/$SRCFILE"
+              ],
+              [
+                "$RES",
+                "$SOLUTION"
+              ]
+            ]
+          }
+        },
+        {
+          "name": "html-ja",
+          "source": "test/data/test-project3/index.html",
+          "prerun": {
+            "default": [
+              [
+                "$BAK"
+              ]
+            ]
+          },
+          "replace": [
+            {
+              "name": "index-html",
+              "replace": [
+                {
+                  "old": "网站正在建设中 - 雅诗 TS 网页项目模板",
+                  "new": "それは動作します！",
+                  "num": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ja",
+          "source": "test/data/test-project3/dist/typescript-web-template.js",
+          "prerun": {
+            "default": [
+              [
+                "$BAK"
+              ]
+            ]
+          },
+          "replace": [
+            {
+              "name": "main-js",
+              "replace": [
+                {
+                  "old": "它运行了！但这里什么都没有。",
+                  "new": "それは動作します！ しかし、ここには何もありません。",
+                  "num": 1
+                },
+                {
+                  "old": "请参考源码文件中的注释和 README.md 开始编辑吧！",
+                  "new": "StaticDeployment が正常に実行されました！",
+                  "num": 1
+                },
+                {
+                  "old": "浏览在线指南和更新",
+                  "new": null,
+                  "num": 1
+                }
+              ]
+            }
+          ],
+          "run": {
+            "default": [
+              [
+                "$ZHCODECONV",
+                "$SRC",
+                "md5"
+              ],
+              [
+                "$CP",
+                "test/data/test-project3/index.html",
+                "test/out/$JOBNAME/$PROJECT/index.html"
+              ],
+              [
+                "$CP",
+                "test/data/test-project3/dist/$SRCNAME.css",
+                "test/out/$JOBNAME/$PROJECT/dist/$SRCNAME.css"
+              ],
+              [
+                "$CP",
+                "$SRC",
+                "test/out/$JOBNAME/$PROJECT/dist/$SRCFILE"
+              ],
+              [
+                "$RES",
+                "$SOLUTION"
+              ]
+            ]
+          }
+        }
+      ]
     }
-]
+  ]

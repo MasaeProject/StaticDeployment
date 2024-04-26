@@ -1,39 +1,40 @@
-- name: test1-2
-  projects:
-    - name: p1
-      source: test/data/test-project1/index.html
-      replace:
-        - name: en
-          prerun:
-            default:
-              - - $CP
-                - $SRC
+- name: test1-2 # 解决方案名称
+  projects: # 项目列表
+    - name: p1 # 项目名称
+      source: test/data/test-project1/index.html # 要处理的源文件
+      replace: # 替换列表
+        - name: en # 任务名称
+          prerun: # 要在替换前运行的命令
+            default: # 支持的系统平台，见 [README.md](#run--prerun-系统平台可选项)
+              # 这里是一个二维数组，外层数组是要执行的每个命令，内层数组是要执行的当前命令和每一个参数。
+              - - $CP # 复制文件命令。带 `$` 开头的是是内置命令，有关内置命令，见 [README.md](#run--prerun-内置命令) 。
+                - $SRC # 要复制的源文件路径，这里直接使用了当前文件 `source` 。有关变量列表，见 [README.md](#run--prerun-变量列表)
                 - test/out/$JOBNAME/$PROJECT/$SRCFILE
-        - name: zh
+        - name: zh # 任务名称
+          prerun: # 要在替换前运行的命令
+            default: # 支持的系统平台
+              - - $BAK # 这里使用内置命令备份了:
+                - $SRC # 源代码文件。
+          replace: # 替换列表
+            - old: Welcome! # 旧字符串
+              new: 欢迎! # 新字符串
+              num: 1 # 替换几次? 这里是只替换一次
+            - old: Kagurazaka Yashi # 旧字符串
+              new: 神楽坂雅詩 # 新字符串
+              num: -1 # 替换几次? `-1` 是全部替换
+          run: # 要在替换后运行的命令
+            default:
+              - - $CP # 复制文件命令。
+                - test/out/$JOBNAME/$PROJECT/$SRCFILE # 这里只提供了一个路径，所以是将当前文件 `source` 复制到为这个文件。
+              - - $RES # 源文件操作完并导出了，所以要把这个文件还原成原来的样子。
+                - $SOLUTION # 指定解决方案
+                - $PROJECT # 指定项目
+                - $JOBNAME # 指定替换作业。解决方案、项目、替换作业同时满足的被变更过的源文件才会被还原。
+        - name: ja # 任务名称
           prerun:
             default:
-              - - $BAK
-                - $SRC
-          replace:
-            - old: Welcome!
-              new: 欢迎!
-              num: 1
-            - old: Kagurazaka Yashi
-              new: 神楽坂雅詩
-              num: -1
-          run:
-            default:
-              - - $CP
-                - test/out/$JOBNAME/$PROJECT/$SRCFILE
-              - - $RES
-                - $SOLUTION
-                - $PROJECT
-                - $JOBNAME
-        - name: ja
-          prerun:
-            default:
-              - - $BAK
-          replace:
+              - - $BAK # 这里使用内置命令备份了源代码文件，没有提供第二个参数即为当前文件 `source`
+          replace: # 替换列表
             - old: Welcome!
               new: ようこそ!
               num: 1
@@ -44,11 +45,11 @@
             default:
               - - $CP
                 - test/out/$JOBNAME/$PROJECT/$SRCFILE
-              - - $RES
-    - name: p2
+              - - $RES # 这里的还原命令没有指定参数，即为还原当前替换任务的所有被变更过的源文件。
+    - name: p2 # 项目名称
       source: test/data/test-project2/index.ts
       replace:
-        - name: en
+        - name: en # 任务名称
           prerun:
             default:
               - - $BAK
@@ -63,22 +64,22 @@
             default:
               - - tsc
                 - $SRC
-              - - $MINIFY
-                - $SRCDIR/$SRCNAME.js
-                - js
-                - $SRCDIR/$SRCNAME.js
-              - - $MINIFY
-                - $SRCDIR/index.html
-                - html
-                - $SRCDIR/index.html
-              - - $MV
-                - $SRCDIR/$SRCNAME.js
-                - test/out/$JOBNAME/$PROJECT/index.js
-              - - $CP
-                - $SRCDIR/index.html
-                - test/out/$JOBNAME/$PROJECT/index.html
-              - - $RES
-        - name: zh
+              - - $MINIFY # 压缩代码
+                - $SRCDIR/$SRCNAME.js # 源文件
+                - js # 代码类型
+                - $SRCDIR/$SRCNAME.js # 目标文件
+              - - $MINIFY # 压缩代码
+                - $SRCDIR/index.html # 源文件
+                - html # 代码类型
+                - $SRCDIR/index.html # 目标文件
+              - - $MV # 移动文件
+                - $SRCDIR/$SRCNAME.js # 源文件
+                - test/out/$JOBNAME/$PROJECT/index.js # 目标文件
+              - - $CP # 复制文件
+                - $SRCDIR/index.html # 源文件
+                - test/out/$JOBNAME/$PROJECT/index.html # 目标文件
+              - - $RES # 还原当前替换任务的所有被变更过的源文件
+        - name: zh # 任务名称
           prerun:
             default:
               - - $BAK
@@ -104,7 +105,7 @@
                 - $SRCDIR/index.html
                 - test/out/$JOBNAME/$PROJECT/index.html
               - - $RES
-        - name: ja
+        - name: ja # 任务名称
           prerun:
             default:
               - - $BAK
@@ -130,33 +131,34 @@
                 - $SRCDIR/index.html
                 - test/out/$JOBNAME/$PROJECT/index.html
               - - $RES
-- name: test3
-  prerun:
+- name: test3 # 解决方案名称
+  prerun: # 解决方案运行前执行的命令
     default:
-      - - $CMDDIR
-        - test/data/test-project3
-      - - npm
+      - - $CMDDIR # 指定下面要运行外部命令所使用的
+        - test/data/test-project3 # 外部命令的工作目录
+      - - npm # 运行前端项目自己的编译命令
         - run
         - release
+        # 编译完成后在各项目中处理编译后的文件
   projects:
-    - name: html-en
+    - name: html-en # 项目名称
       source: test/data/test-project3/index.html
       prerun:
         default:
-          - - $BAK
-      replace:
+          - - $BAK # 先备份
+      replace: # 替换任务
         - name: index-html
           replace:
             - old: 网站正在建设中 - 雅诗 TS 网页项目模板
               new: It works!
               num: 1
-    - name: en
+    - name: en # 项目名称
       source: test/data/test-project3/dist/typescript-web-template.js
-      prerun:
+      prerun: # 项目运行前执行的命令
         default:
-          - - $BAK
+          - - $BAK # 先备份
       replace:
-        - name: main-js
+        - name: main-js # 任务名称
           replace:
             - old: 它运行了！但这里什么都没有。
               new: It works! But there is nothing here.
@@ -167,12 +169,12 @@
             - old: 浏览在线指南和更新
               new:
               num: 1
-      run:
+      run: # 项目运行后执行的命令
         default:
-          - - $ZHCODECONV
-            - $SRC
-            - md5
-          - - $CP
+          - - $ZHCODECONV # 源码里有中文变量，进行混淆
+            - $SRC # 源文件
+            - md5 # 用 MD5
+          - - $CP # 几个 $CP 命令把本解决方案截至目前修改的文件都拷贝到目标文件夹。
             - test/data/test-project3/index.html
             - test/out/$JOBNAME/$PROJECT/index.html
           - - $CP
@@ -181,9 +183,9 @@
           - - $CP
             - $SRC
             - test/out/$JOBNAME/$PROJECT/dist/$SRCFILE
-          - - $RES
-            - $SOLUTION
-    - name: html-cn
+          - - $RES # 还原本截至目前修改的所有文件
+            - $SOLUTION # 只指定了解决方案名称，所以是本解决方案截至目前修改的所有文件都进行还原，以便开始下一轮修改
+    - name: html-cn # 项目名称
       source: test/data/test-project3/index.html
       prerun:
         default:
@@ -194,7 +196,7 @@
             - old: 网站正在建设中 - 雅诗 TS 网页项目模板
               new: 它运行了！
               num: 1
-    - name: cn
+    - name: cn # 项目名称
       source: test/data/test-project3/dist/typescript-web-template.js
       prerun:
         default:

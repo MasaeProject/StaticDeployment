@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=StaticDeployment
+GenericName=StaticDeployment
+Comment=通过字符替换将一个网页生成为多个版本。适用于做好一张网页后，需要生成多个版本的情况。例如多语言或者只有少部分变化，又不想使用动态网页的情况。本程序用于通过配置文件托管这一流程，并且能够处理这之间的编译和转换等流程，保持原有项目的编译脚本可用并自动执行他们。
+Exec=./StaticDeployment -pa
+Terminal=true
+Icon=./icon.png
+Type=Application
+Categories=Tool
