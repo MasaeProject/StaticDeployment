@@ -169,11 +169,11 @@ func runExec(run Run, srcPath string, names Names) bool {
 		case "$ZHCODECONV":
 			var lenCh [2]int
 			lenCh, err = zhcodeconv.InitWithCmd(cmd, srcPath)
-			log.Printf("非 ASCII 变量和函数名转换: %s ( %d -> %d )\n", srcPath, lenCh[0], lenCh[1])
+			log.Printf("非 ASCII 变量和函数名转换: %s (%d B -> %d B)\n", srcPath, lenCh[0], lenCh[1])
 		case "$MINIFY":
 			var lenCh [2]int
 			lenCh, err = minify.InitWithCmd(cmd, srcPath)
-			log.Printf("代码压缩: %s ( %d -> %d )\n", srcPath, lenCh[0], lenCh[1])
+			log.Printf("代码压缩: %s (%d B -> %d B)\n", srcPath, lenCh[0], lenCh[1])
 		default:
 			noEmbCmd = true
 		}

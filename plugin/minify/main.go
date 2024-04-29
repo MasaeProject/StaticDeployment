@@ -1,7 +1,6 @@
 package codecompress
 
 import (
-	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -71,7 +70,6 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 }
 
 func compressALL(htmlContent string, mediatype string) (string, error) {
-	fmt.Println("Compressing", mediatype, "...")
 	m := minify.New()
 	m.AddFunc(mapMediaType["css"], css.Minify)
 	m.AddFunc(mapMediaType["html"], html.Minify)
