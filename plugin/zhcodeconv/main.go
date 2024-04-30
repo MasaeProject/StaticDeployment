@@ -35,6 +35,10 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 	if len(outPath) == 0 {
 		outPath = path
 	}
+	sourceFileStat, err := os.Stat(path)
+	if err != nil {
+		return DataLen, err
+	}
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return DataLen, err
@@ -51,7 +55,7 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 	DataLen[0] = len(data)
 	var newCode []byte = replaceNonAscii(data, mode, reEnc)
 	DataLen[1] = len(newCode)
-	err = os.WriteFile(outPath, newCode, 0644)
+	err = os.WriteFile(outPath, newCode, sourceFileStat.Mode())
 	if err != nil {
 		return DataLen, err
 	}
@@ -124,12 +128,6 @@ func hashesCrypto(mode string, cache []byte) []byte {
 func firstNoNumberS(str string) string {
 	if unicode.IsDigit(rune(str[0])) {
 		str = "g" + str
-	}
-	return str
-}
-func firstNoNumberC(str []byte) []byte {
-	if unicode.IsDigit(rune(str[0])) {
-		str = append([]byte{'g'}, str...)
 	}
 	return str
 }

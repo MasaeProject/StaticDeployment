@@ -138,6 +138,10 @@ func runExec(run Run, srcPath string, names Names) bool {
 			} else if cmdLen == 1 || cmdLen == 4 {
 				isOK = restoreJob(resCmd.Solution, resCmd.Project, resCmd.Replace)
 			}
+		case "$MD":
+			if cmdLen >= 2 {
+				err = MakeDirectory(cmd[1])
+			}
 		case "$CP":
 			if cmdLen >= 3 {
 				err = Copy(cmd[1], cmd[2])

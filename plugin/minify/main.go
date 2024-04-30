@@ -52,6 +52,10 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 			mode = mapMediaType[mode]
 		}
 	}
+	sourceFileStat, err := os.Stat(path)
+	if err != nil {
+		return DataLen, err
+	}
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return DataLen, err
@@ -62,7 +66,7 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 		return DataLen, err
 	}
 	DataLen[1] = len(newCode)
-	err = os.WriteFile(outPath, []byte(newCode), 0644)
+	err = os.WriteFile(outPath, []byte(newCode), sourceFileStat.Mode())
 	if err != nil {
 		return DataLen, err
 	}

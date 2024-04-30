@@ -27,7 +27,7 @@ func copyFile(src string, dst string) error {
 	}
 	defer source.Close()
 
-	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+	if err := MakeDirectory(filepath.Dir(dst)); err != nil {
 		return err
 	}
 
@@ -106,7 +106,11 @@ func Copy(src string, dst string) error {
 func moveFile(src string, dst string) error {
 	log.Printf("移动文件: %s -> %s", src, dst) // MV
 	totalIO++
-	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(dst), sourceFileStat.Mode()); err != nil {
 		return err
 	}
 
@@ -336,4 +340,23 @@ func Exists(path string) bool {
 		return false
 	}
 	return err == nil
+}
+
+func MakeDirectory(path string) error {
+	var pathPart string = path
+	for {
+		if Exists(pathPart) {
+			break
+		}
+		var parentDir string = filepath.Dir(pathPart)
+		if parentDir == pathPart {
+			break
+		}
+		pathPart = parentDir
+	}
+	sourceFileStat, err := os.Stat(pathPart)
+	if err != nil {
+		return err
+	}
+	return os.MkdirAll(path, sourceFileStat.Mode())
 }

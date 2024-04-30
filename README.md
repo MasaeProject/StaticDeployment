@@ -70,7 +70,7 @@
 
 ### 配置文件格式
 
-配置文件的基本结构：
+#### 配置文件的基本结构
 
 ```yaml
 # root: 解决方案 `Solution`
@@ -109,7 +109,7 @@
               num: 替换几次
 ```
 
-解决方案、项目、替换任务 都可以指定：
+#### 解决方案、项目、替换任务 都可以指定命令
 
 - `prerun`: 操作之前运行什么
 - `run`: 操作之后运行什么
@@ -134,6 +134,39 @@
         - prerun: 处理任务之后运行什么
     - run: 处理项目之后运行什么
   - run: 处理解决方案之后运行什么
+```
+
+#### `run` 和 `prerun` 命令的基本结构
+
+```yaml
+# root: 解决方案 `Solution`
+- name: 解决方案名称
+  - prerun: 处理解决方案之前运行什么
+    - - 命令 1
+      - 命令 1 的参数 1
+      - 命令 1 的参数 2
+    - - 命令 2
+      - 命令 2 的参数 1
+      - 命令 2 的参数 2
+  - run: 处理解决方案之后运行什么
+    - - 命令 1
+```
+
+示例:
+
+```yaml
+- name: index
+  prerun:
+    default:
+      - - node_modules/.bin/eslint
+        - --ext
+        - .js,.jsx,.ts,.tsx
+        - src
+        - --ignore-pattern
+        - "*.d.ts"
+      - - node_modules/.bin/webpack
+        - --mode
+        - production
 ```
 
 **以下是配置文件中的各种可选项：**
