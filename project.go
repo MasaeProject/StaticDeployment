@@ -28,7 +28,7 @@ func runSolution(solution Solution) bool {
 	}
 	if solution.Run != nil {
 		log.Println("运行解决方案", solution.Name, "的后处理命令:")
-		if !runExec(*solution.PreRun, "", names) {
+		if !runExec(*solution.Run, "", names) {
 			return false
 		}
 	}

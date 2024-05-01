@@ -5,6 +5,10 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"hash"
+	"hash/adler32"
+	"hash/crc32"
+	"hash/crc64"
+	"hash/fnv"
 	"os"
 	"strconv"
 	"strings"
@@ -21,6 +25,7 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 	var mode string = "hex"
 	var reEnc int = 1
 	var DataLen [2]int = [2]int{-1, -1}
+	var syms []string = []string{"\"", "'"}
 	if cmdLen <= 1 {
 		path = srcPath
 	} else if cmdLen >= 2 {
@@ -31,6 +36,13 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 	}
 	if cmdLen >= 4 {
 		outPath = cmd[3]
+	}
+	if cmdLen >= 5 {
+		if len(cmd[4]) == 0 || cmd[4] == "." {
+			syms = []string{}
+		} else {
+			syms = strings.Split(cmd[4], "")
+		}
 	}
 	if len(outPath) == 0 {
 		outPath = path
@@ -53,7 +65,7 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 		}
 	}
 	DataLen[0] = len(data)
-	var newCode []byte = replaceNonAscii(data, mode, reEnc)
+	var newCode []byte = replaceNonAscii(data, mode, reEnc, syms)
 	DataLen[1] = len(newCode)
 	err = os.WriteFile(outPath, newCode, sourceFileStat.Mode())
 	if err != nil {
@@ -62,46 +74,74 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 	return DataLen, nil
 }
 
-func replaceNonAscii(code []byte, mode string, reEnc int) []byte {
+func isEnglishLetter(r rune) bool {
+	return r <= 127 && unicode.IsLetter(r)
+}
+
+func replaceNonAscii(code []byte, mode string, reEnc int, syms []string) []byte {
 	var quotation string = ""
 	var newCode []byte = []byte{}
 	var cache []byte = []byte{}
-	stringToTraverse := string(code)
-	for i, w := 0, 0; i < len(stringToTraverse); i += w {
-		runeValue, width := utf8.DecodeRuneInString(stringToTraverse[i:])
-		var c string = string(runeValue)
-		// fmt.Printf("%s", c)
-		w = width
-		if c == "\"" || c == "'" {
-			if quotation == c {
-				quotation = ""
-			} else if quotation == "" {
-				quotation = c
-			}
-		}
-		if len(quotation) == 0 && (c[0] <= 0 || c[0] > 127) {
-			cache = append(cache, []byte(c)...)
-		} else {
-			if len(cache) > 0 {
-				var cryptoCache []byte = hashesCrypto(mode, cache)
-				for i := 1; i < reEnc; i++ {
-					cryptoCache = hashesCrypto(mode, cryptoCache)
+	for i := 0; i < len(code); {
+		r, size := utf8.DecodeRune(code[i:])
+		var c string = string(r)
+		if len(syms) > 0 {
+			for _, sym := range syms {
+				if c == sym {
+					if quotation == c {
+						quotation = ""
+					} else if len(quotation) == 0 {
+						quotation = c
+					}
+					break
 				}
-				newCode = append(newCode, cryptoCache...)
-				cache = []byte{}
 			}
-			newCode = append(newCode, []byte(c)...)
 		}
+		if unicode.IsLetter(r) && len(quotation) == 0 && !isEnglishLetter(r) {
+			cache = append(cache, []byte(c)...) // 中文
+			i += size
+			continue
+		}
+		if len(cache) > 0 {
+			newC := EncodeCrypto(cache, mode, reEnc)
+			cache = []byte{}
+			newCode = append(newCode, newC...)
+		}
+		newCode = append(newCode, []byte(c)...)
+
+		i += size
+	}
+	if len(cache) > 0 {
+		newC := EncodeCrypto(cache, mode, reEnc)
+		newCode = append(newCode, newC...)
 	}
 	return newCode
+}
+
+func EncodeCrypto(cache []byte, mode string, reEnc int) []byte {
+	var cryptoCache []byte = hashesCrypto(mode, cache)
+	for i := 1; i < reEnc; i++ {
+		cryptoCache = hashesCrypto(mode, cryptoCache)
+	}
+	return cryptoCache
 }
 
 func hashesCrypto(mode string, cache []byte) []byte {
 	var newCode []byte = []byte{}
 	var hasher hash.Hash
 	switch mode {
+	// 以下为非加密哈希函数
 	case "hex":
 		return []byte(fmt.Sprintf("%x", cache))
+	case "fnv1a":
+		hasher = fnv.New32a()
+	case "adler32":
+		hasher = adler32.New()
+	case "crc32":
+		hasher = crc32.NewIEEE()
+	case "crc64":
+		hasher = crc64.New(crc64.MakeTable(crc64.ISO))
+	// 以下为加密哈希函数
 	case "md5":
 		hasher = md5.New()
 	case "sha1":

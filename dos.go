@@ -212,7 +212,7 @@ func removeFile(filePath string) error {
 	log.Printf("删除文件: %s", filePath) // RM
 	totalIO++
 	err := os.Remove(filePath)
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 	return nil
@@ -222,7 +222,7 @@ func removeDirectory(dirPath string) error {
 	log.Printf("删除文件夹: %s", dirPath) // RMDIR
 	totalIO++
 	err := os.RemoveAll(dirPath)
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 	return nil
@@ -232,7 +232,9 @@ func Remove(path string) error {
 	path = CleanPath(path)
 
 	info, err := os.Stat(path)
-	if err != nil {
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
 		return err
 	}
 
@@ -253,7 +255,7 @@ func RemoveFileSecure(filename string) error {
 	defer file.Close()
 
 	stat, err := file.Stat()
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
@@ -291,7 +293,7 @@ func RemoveDirectorySecure(dirPath string) error {
 		return nil
 	})
 
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
@@ -343,6 +345,8 @@ func Exists(path string) bool {
 }
 
 func MakeDirectory(path string) error {
+	log.Printf("创建文件夹: %s", path) // MD
+	totalIO++
 	var pathPart string = path
 	for {
 		if Exists(pathPart) {

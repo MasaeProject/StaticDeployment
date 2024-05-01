@@ -185,7 +185,7 @@
             - test/out/$JOBNAME/$PROJECT/dist/$SRCFILE
           - - $RES # 还原本截至目前修改的所有文件
             - $SOLUTION # 只指定了解决方案名称，所以是本解决方案截至目前修改的所有文件都进行还原，以便开始下一轮修改
-    - name: html-cn # 项目名称
+    - name: html-zh # 项目名称
       source: test/data/test-project3/index.html
       prerun:
         default:
@@ -196,7 +196,7 @@
             - old: 网站正在建设中 - 雅诗 TS 网页项目模板
               new: 它运行了！
               num: 1
-    - name: cn # 项目名称
+    - name: zh # 项目名称
       source: test/data/test-project3/dist/typescript-web-template.js
       prerun:
         default:
@@ -214,7 +214,7 @@
         default:
           - - $ZHCODECONV
             - $SRC
-            - md5*32
+            - crc32
           - - $CP
             - test/data/test-project3/index.html
             - test/out/$JOBNAME/$PROJECT/index.html
