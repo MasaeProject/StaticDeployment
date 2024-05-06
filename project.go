@@ -15,15 +15,18 @@ func runSolution(solution Solution) bool {
 			return false
 		}
 	}
-	var projectsLen int = len(solution.Projects)
-	for i, project := range solution.Projects {
-		log.Printf("开始处理: 解决方案: %s  项目 %d / %d : %s\n", names.Solution, i+1, projectsLen, project.Name)
-		var sTime time.Time = time.Now()
-		if runProject(project, names) {
-			log.Printf("项目 %d / %d : %s 处理完毕，用时 %.2f 秒。\n", i+1, projectsLen, project.Name, time.Since(sTime).Seconds())
-		} else {
-			log.Printf("项目 %d / %d : %s 处理失败！用时 %.2f 秒。\n", i+1, projectsLen, project.Name, time.Since(sTime).Seconds())
-			return false
+	if solution.Projects != nil {
+		var projects []Project = *solution.Projects
+		var projectsLen int = len(projects)
+		for i, project := range projects {
+			log.Printf("开始处理: 解决方案: %s  项目 %d / %d : %s\n", names.Solution, i+1, projectsLen, project.Name)
+			var sTime time.Time = time.Now()
+			if runProject(project, names) {
+				log.Printf("项目 %d / %d : %s 处理完毕，用时 %.2f 秒。\n", i+1, projectsLen, project.Name, time.Since(sTime).Seconds())
+			} else {
+				log.Printf("项目 %d / %d : %s 处理失败！用时 %.2f 秒。\n", i+1, projectsLen, project.Name, time.Since(sTime).Seconds())
+				return false
+			}
 		}
 	}
 	if solution.Run != nil {
@@ -57,15 +60,18 @@ func runProject(project Project, names Names) bool {
 			return false
 		}
 	}
-	var replaceLen int = len(project.Replace)
-	for i, item := range project.Replace {
-		log.Printf("开始处理: 解决方案: %s  项目: %s  替换 %d / %d : %s\n", names.Solution, project.Name, i+1, replaceLen, item.Name)
-		var sTime time.Time = time.Now()
-		if runJob(item, f, names) {
-			log.Printf("替换 %d / %d : %s 处理完毕，用时 %.2f 秒。\n", i+1, replaceLen, item.Name, time.Since(sTime).Seconds())
-		} else {
-			log.Printf("替换 %d / %d : %s 处理失败！用时 %.2f 秒。\n", i+1, replaceLen, item.Name, time.Since(sTime).Seconds())
-			return false
+	if project.Replace != nil {
+		var replaces []ReplaceItem = *project.Replace
+		var replaceLen int = len(replaces)
+		for i, item := range replaces {
+			log.Printf("开始处理: 解决方案: %s  项目: %s  替换 %d / %d : %s\n", names.Solution, project.Name, i+1, replaceLen, item.Name)
+			var sTime time.Time = time.Now()
+			if runJob(item, f, names) {
+				log.Printf("替换 %d / %d : %s 处理完毕，用时 %.2f 秒。\n", i+1, replaceLen, item.Name, time.Since(sTime).Seconds())
+			} else {
+				log.Printf("替换 %d / %d : %s 处理失败！用时 %.2f 秒。\n", i+1, replaceLen, item.Name, time.Since(sTime).Seconds())
+				return false
+			}
 		}
 	}
 	if project.Run != nil {
@@ -134,11 +140,15 @@ func runReplaceDetail(replace []ReplaceDetail, f FileData) FileData {
 	var newString string = f.LoadString
 	if len(replace) > 0 {
 		for _, detail := range replace {
+			var newStr = detail.New
+			for key, val := range customVariables {
+				newStr = strings.ReplaceAll(newStr, "$"+key, val)
+			}
 			var count int = strings.Count(newString, detail.Old)
 			if detail.Num < 0 {
-				newString = strings.ReplaceAll(newString, detail.Old, detail.New)
+				newString = strings.ReplaceAll(newString, detail.Old, newStr)
 			} else {
-				newString = strings.Replace(newString, detail.Old, detail.New, detail.Num)
+				newString = strings.Replace(newString, detail.Old, newStr, detail.Num)
 				if count > detail.Num {
 					count = detail.Num
 				}

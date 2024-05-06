@@ -130,7 +130,7 @@ func hashesCrypto(mode string, cache []byte) []byte {
 	var newCode []byte = []byte{}
 	var hasher hash.Hash
 	switch mode {
-	// 以下为非加密哈希函数
+	// 以下為非加密雜湊函式
 	case "hex":
 		return []byte(fmt.Sprintf("%x", cache))
 	case "fnv1a":
@@ -141,7 +141,7 @@ func hashesCrypto(mode string, cache []byte) []byte {
 		hasher = crc32.NewIEEE()
 	case "crc64":
 		hasher = crc64.New(crc64.MakeTable(crc64.ISO))
-	// 以下为加密哈希函数
+	// 以下為加密雜湊函式
 	case "md5":
 		hasher = md5.New()
 	case "sha1":

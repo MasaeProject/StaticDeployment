@@ -14,12 +14,13 @@ import (
 )
 
 var (
-	osName       string
-	noChLog      []BackupItem = []BackupItem{}
-	totalIO      uint         = 0
-	totalCMD     uint         = 0
-	totalEXE     uint         = 0
-	totalReplace uint         = 0
+	osName          string
+	noChLog         []BackupItem      = []BackupItem{}
+	totalIO         uint              = 0
+	totalCMD        uint              = 0
+	totalEXE        uint              = 0
+	totalReplace    uint              = 0
+	customVariables map[string]string = map[string]string{}
 )
 
 func main() {
@@ -31,13 +32,20 @@ func main() {
 	log.Println("StaticDeployment v1.0.0 for", osName)
 	log.Println("https://github.com/MasaeProject/StaticDeployment")
 
-	if len(os.Args) <= 1 {
-		log.Println("必须指定一个配置文件路径。")
+	var configPath = "StaticDeployment.yaml"
+	if len(os.Args) > 1 {
+		configPath = os.Args[1]
+	} else if !Exists(configPath) {
+		log.Println("错误: 必须指定一个配置文件。")
 		return
 	}
-	file, err := os.Open(os.Args[1])
+	if !Exists(configPath) {
+		log.Println("错误: 配置文件路径不正确。")
+		return
+	}
+	file, err := os.Open(configPath)
 	if err != nil {
-		log.Println("错误: 打开配置文件", os.Args[1], "失败:", err)
+		log.Println("错误: 打开配置文件", configPath, "失败:", err)
 		return
 	}
 	defer file.Close()
@@ -69,8 +77,12 @@ func main() {
 		os.Exit(1)
 		return
 	}
-
 	var solutionLen = len(solutions)
+	if solutionLen == 0 {
+		log.Printf("错误: 配置文件格式不正确。")
+		os.Exit(1)
+		return
+	}
 	for i, solution := range solutions {
 		log.Printf("开始处理: 解决方案 %d / %d : %s\n", i+1, solutionLen, solution.Name)
 		var sTime time.Time = time.Now()

@@ -1,27 +1,25 @@
 package main
 
 type Solution struct {
-	Name     string    `json:"name"`
-	Projects []Project `json:"projects"`
-	Run      *Run      `json:"run"`
-	PreRun   *Run      `json:"prerun"`
+	Name     string     `json:"name"`
+	Projects *[]Project `json:"projects"`
+	Run      *Run       `json:"run"`
+	PreRun   *Run       `json:"prerun"`
 }
 
 type Project struct {
-	Name       string        `json:"name"`
-	Source     string        `json:"source"`
-	Additional *[]string     `json:"additional"`
-	Run        *Run          `json:"run"`
-	PreRun     *Run          `json:"prerun"`
-	Replace    []ReplaceItem `json:"replace"`
+	Name    string         `json:"name"`
+	Source  string         `json:"source"`
+	Run     *Run           `json:"run"`
+	PreRun  *Run           `json:"prerun"`
+	Replace *[]ReplaceItem `json:"replace"`
 }
 
 type ReplaceItem struct {
-	Name       string          `json:"to"`
-	Replace    []ReplaceDetail `json:"replace"`
-	Additional *[]string       `json:"additional"`
-	Run        *Run            `json:"run"`
-	PreRun     *Run            `json:"prerun"`
+	Name    string          `json:"to"`
+	Replace []ReplaceDetail `json:"replace"`
+	Run     *Run            `json:"run"`
+	PreRun  *Run            `json:"prerun"`
 }
 
 type Run struct {

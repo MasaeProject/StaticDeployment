@@ -34,6 +34,7 @@ func runExec(run Run, srcPath string, names Names) bool {
 	for cmdsI, cmd := range cmds {
 		var noEmbCmd = false
 		var cmdLen int = len(cmd)
+		var customVariableKey string = ""
 		for cmdI, c := range cmd {
 			var nKey string = "$SRC"
 			c = CleanPath(c)
@@ -95,6 +96,10 @@ func runExec(run Run, srcPath string, names Names) bool {
 			nKey = "$SRC"
 			if strings.Contains(c, nKey) {
 				c = strings.ReplaceAll(c, nKey, srcPath)
+			}
+			nKey = "$"
+			for key, val := range customVariables {
+				c = strings.ReplaceAll(c, nKey+key, val)
 			}
 			// fmt.Println("SRCFILE", fileFullName, "SRCNAME", fileName, "SRCEXT", extName, "SRCDIRNAME", pathArr[len(pathArr)-1], "SRCDIR", dirPath, "SRC", srcPath)
 			cmd[cmdI] = CleanPath(c)
@@ -178,6 +183,22 @@ func runExec(run Run, srcPath string, names Names) bool {
 			var lenCh [2]int
 			lenCh, err = minify.InitWithCmd(cmd, srcPath)
 			log.Printf("代码压缩: %s (%d B -> %d B)\n", srcPath, lenCh[0], lenCh[1])
+		case "$UNSET":
+			if cmdLen >= 2 {
+				if v, ok := customVariables[cmd[1]]; ok {
+					delete(customVariables, cmd[1])
+					log.Printf("删除变量: %s (%d B)  总变量数: %d\n", cmd[1], len(v), len(customVariables))
+				}
+			}
+		case "$SET":
+			if cmdLen >= 3 {
+				customVariables[cmd[1]] = cmd[2]
+			}
+		case "$CMDSET":
+			if cmdLen >= 3 {
+				customVariableKey = cmd[1]
+			}
+			noEmbCmd = true
 		default:
 			noEmbCmd = true
 		}
@@ -189,7 +210,7 @@ func runExec(run Run, srcPath string, names Names) bool {
 		}
 
 		if noEmbCmd {
-			if !runCMD(cmd, dir) {
+			if !runCMD(cmd, dir, customVariableKey) {
 				return false
 			}
 		}
@@ -197,23 +218,38 @@ func runExec(run Run, srcPath string, names Names) bool {
 	return true
 }
 
-func runCMD(cmd []string, dir string) bool {
+func runCMD(cmd []string, dir string, customVariableKey string) bool {
+	if len(customVariableKey) > 0 {
+		cmd = cmd[2:]
+	}
 	totalEXE++
 	ex := exec.Command(cmd[0], cmd[1:]...)
 	if len(dir) > 0 {
 		ex.Dir = dir
 	}
-	ex.Stdout = os.Stdout
-	ex.Stderr = os.Stderr
-	err := ex.Run()
+	var err error = nil
+	if len(customVariableKey) > 0 {
+		var output []byte
+		output, err = ex.CombinedOutput()
+		if err == nil {
+			customVariables[customVariableKey] = string(output)
+			// log.Printf("命令结果保存到变量 %s: %s", customVariableKey, customVariables[customVariableKey])
+			log.Printf("命令结果保存到变量: %s (%d B)  总变量数: %d", customVariableKey, len(customVariables[customVariableKey]), len(customVariables))
+		}
+	} else {
+		ex.Stdout = os.Stdout
+		ex.Stderr = os.Stderr
+		err = ex.Run()
+	}
+	if err != nil {
+		log.Println("错误：执行命令失败：", err)
+		return false
+	}
 	if exitError, ok := err.(*exec.ExitError); ok {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
 			fmt.Printf("错误: 命令退出代码: %d\n", status.ExitStatus())
 			return false
 		}
-	} else if err != nil {
-		log.Println("错误：执行命令失败：", err)
-		return false
 	} else {
 		log.Println("命令运行成功。")
 		return true

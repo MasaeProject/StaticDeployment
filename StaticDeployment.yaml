@@ -1,0 +1,20 @@
+- name: test1-2
+  prerun:
+    default:
+      - - $SET
+        - VAR1
+        - Hello!
+      - - $CMDSET
+        - VAR2
+        - ls
+        - -ahl
+  run:
+    default:
+      - - echo
+        - $VAR1
+      - - echo
+        - $VAR2
+      - - $UNSET
+        - VAR1
+      - - $UNSET
+        - VAR2
