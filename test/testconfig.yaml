@@ -64,14 +64,14 @@
             default:
               - - tsc
                 - $SRC
-              - - $MINIFY # 压缩代码
+              - - $Minify # 压缩代码
                 - $SRCDIR/$SRCNAME.js # 源文件
-                - js # 代码类型
                 - $SRCDIR/$SRCNAME.js # 目标文件
-              - - $MINIFY # 压缩代码
+                - js # 代码类型
+              - - $Minify # 压缩代码
                 - $SRCDIR/index.html # 源文件
-                - html # 代码类型
                 - $SRCDIR/index.html # 目标文件
+                - html # 代码类型
               - - $MV # 移动文件
                 - $SRCDIR/$SRCNAME.js # 源文件
                 - test/out/$JOBNAME/$PROJECT/index.js # 目标文件
@@ -94,9 +94,11 @@
             default:
               - - tsc
                 - $SRC
-              - - $MINIFY
+              - - $Minify
                 - $SRCDIR/$SRCNAME.js
-              - - $MINIFY
+                - $SRCDIR/$SRCNAME.js # 这里省略了代码类型参数，自动根据文件扩展名判断
+              - - $Minify
+                - $SRCDIR/index.html
                 - $SRCDIR/index.html
               - - $MV
                 - $SRCDIR/$SRCNAME.js
@@ -120,9 +122,11 @@
             default:
               - - tsc
                 - $SRC
-              - - $MINIFY
+              - - $Minify
                 - $SRCDIR/$SRCNAME.js
-              - - $MINIFY
+                - $SRCDIR/$SRCNAME.js
+              - - $Minify
+                - $SRCDIR/index.html
                 - $SRCDIR/index.html
               - - $MV
                 - $SRCDIR/$SRCNAME.js
@@ -171,9 +175,10 @@
               num: 1
       run: # 项目运行后执行的命令
         default:
-          - - $ZHCODECONV # 源码里有中文变量，进行混淆
+          - - $ZhCodeConv # 源码里有中文变量，进行混淆
             - $SRC # 源文件
-            - md5*32 # 用 md5 ，迭代 32 次
+            - crc32*32 # 用 md5 ，迭代 32 次
+            - $SRC # 目标文件，这里覆盖了源文件
           - - $CP # 几个 $CP 命令把本解决方案截至目前修改的文件都拷贝到目标文件夹。
             - test/data/test-project3/index.html
             - test/out/$JOBNAME/$PROJECT/index.html
@@ -212,9 +217,10 @@
               num: 1
       run:
         default:
-          - - $ZHCODECONV
+          - - $ZhCodeConv
             - $SRC
-            - crc32
+            - crc32*32
+            - $SRC
           - - $CP
             - test/data/test-project3/index.html
             - test/out/$JOBNAME/$PROJECT/index.html
@@ -256,9 +262,10 @@
               num: 1
       run:
         default:
-          - - $ZHCODECONV
+          - - $ZhCodeConv
             - $SRC
-            - md5*32
+            - crc32*32
+            - $SRC
           - - $CP
             - test/data/test-project3/index.html
             - test/out/$JOBNAME/$PROJECT/index.html

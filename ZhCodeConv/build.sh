@@ -1,4 +1,4 @@
-name="StaticDeployment"
+name="StaticDeployment_ZhCodeConv"
 pname="StaticDeployment"
 version="1.0.0"
 rm -rf bin

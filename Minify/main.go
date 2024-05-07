@@ -1,6 +1,9 @@
-package codecompress
+//go:generate goversioninfo -icon=ico/icon.ico -manifest=main.exe.manifest -arm=true
+package main
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -23,26 +26,27 @@ var mapMediaType map[string]string = map[string]string{
 	"xml":  "application/xml",
 }
 
-func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
+func StaticDeployment_Minify(cmd []string) ([2]int, error) {
 	var cmdLen int = len(cmd)
 	var path string = ""
 	var outPath string = ""
 	var mode string = ""
 	var DataLen [2]int = [2]int{-1, -1}
 	if cmdLen <= 1 {
-		path = srcPath
+		// path = srcPath
+		return DataLen, fmt.Errorf("NO PATH")
 	} else if cmdLen >= 2 {
 		path = cmd[1]
 	}
 	if cmdLen >= 3 {
-		mode = cmd[2]
+		outPath = cmd[2]
 	}
 	if cmdLen >= 4 {
-		outPath = cmd[3]
+		mode = cmd[3]
 	}
-	if len(outPath) == 0 {
-		outPath = path
-	}
+	// if len(outPath) == 0 {
+	// 	outPath = path
+	// }
 	if len(mode) == 0 {
 		var srcPathArr []string = strings.Split(path, ".")
 		mode = srcPathArr[len(srcPathArr)-1]
@@ -66,9 +70,13 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 		return DataLen, err
 	}
 	DataLen[1] = len(newCode)
-	err = os.WriteFile(outPath, []byte(newCode), sourceFileStat.Mode())
-	if err != nil {
-		return DataLen, err
+	if len(outPath) == 0 {
+		fmt.Println(string(newCode))
+	} else {
+		err = os.WriteFile(outPath, []byte(newCode), sourceFileStat.Mode())
+		if err != nil {
+			return DataLen, err
+		}
 	}
 	return DataLen, nil
 }
@@ -83,4 +91,12 @@ func compressALL(htmlContent string, mediatype string) (string, error) {
 	m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
 
 	return m.String(mediatype, htmlContent)
+}
+
+func main() {
+	dataLen, err := StaticDeployment_Minify(os.Args)
+	log.Printf("[%s] %d -> %d  E: %v", os.Args[0], dataLen[0], dataLen[1], err)
+	if err != nil {
+		os.Exit(1)
+	}
 }

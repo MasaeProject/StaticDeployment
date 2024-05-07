@@ -122,13 +122,13 @@
                     "$SRC"
                   ],
                   [
-                    "$MINIFY",
+                    "$Minify",
                     "$SRCDIR/$SRCNAME.js",
                     "js",
                     "$SRCDIR/$SRCNAME.js"
                   ],
                   [
-                    "$MINIFY",
+                    "$Minify",
                     "$SRCDIR/index.html",
                     "html",
                     "$SRCDIR/index.html"
@@ -177,11 +177,11 @@
                     "$SRC"
                   ],
                   [
-                    "$MINIFY",
+                    "$Minify",
                     "$SRCDIR/$SRCNAME.js"
                   ],
                   [
-                    "$MINIFY",
+                    "$Minify",
                     "$SRCDIR/index.html"
                   ],
                   [
@@ -228,11 +228,11 @@
                     "$SRC"
                   ],
                   [
-                    "$MINIFY",
+                    "$Minify",
                     "$SRCDIR/$SRCNAME.js"
                   ],
                   [
-                    "$MINIFY",
+                    "$Minify",
                     "$SRCDIR/index.html"
                   ],
                   [
@@ -329,7 +329,7 @@
           "run": {
             "default": [
               [
-                "$ZHCODECONV",
+                "$ZhCodeConv",
                 "$SRC",
                 "md5"
               ],
@@ -408,7 +408,7 @@
           "run": {
             "default": [
               [
-                "$ZHCODECONV",
+                "$ZhCodeConv",
                 "$SRC",
                 "md5"
               ],
@@ -492,7 +492,7 @@
           "run": {
             "default": [
               [
-                "$ZHCODECONV",
+                "$ZhCodeConv",
                 "$SRC",
                 "md5"
               ],

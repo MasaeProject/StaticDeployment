@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=StaticDeployment_ZhCodeConv
+GenericName=StaticDeployment_ZhCodeConv
+Comment=非 ASCII 变量和函数名转换。
+Exec=./StaticDeployment_ZhCodeConv -pa
+Terminal=true
+Icon=./StaticDeployment_ZhCodeConv.png
+Type=Application
+Categories=Tool

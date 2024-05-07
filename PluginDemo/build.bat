@@ -1,4 +1,4 @@
-SET NAME=StaticDeployment
+SET NAME=StaticDeployment_PluginDemo
 SET PNAME=StaticDeployment
 SET VERSION=1.0.0
 RD /S /Q bin

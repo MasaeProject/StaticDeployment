@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=StaticDeployment_Minify
+GenericName=StaticDeployment_Minify
+Comment=压缩前端代码。
+Exec=./StaticDeployment_Minify -pa
+Terminal=true
+Icon=./StaticDeployment_Minify.png
+Type=Application
+Categories=Tool

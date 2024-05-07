@@ -1,0 +1,43 @@
+{
+    "FixedFileInfo": {
+        "FileVersion": {
+            "Major": 1,
+            "Minor": 0,
+            "Patch": 0,
+            "Build": 0
+        },
+        "ProductVersion": {
+            "Major": 1,
+            "Minor": 0,
+            "Patch": 0,
+            "Build": 0
+        },
+        "FileFlagsMask": "3f",
+        "FileFlags ": "00",
+        "FileOS": "040004",
+        "FileType": "01",
+        "FileSubType": "00"
+    },
+    "StringFileInfo": {
+        "Comments": "非 ASCII 变量和函数名转换。",
+        "CompanyName": "Kagurazaka Yashi",
+        "FileDescription": "非 ASCII 变量和函数名转换。",
+        "FileVersion": "1.0.0.0",
+        "InternalName": "StaticDeployment_ZhCodeConv",
+        "LegalCopyright": "2024, Kagurazaka Yashi.",
+        "LegalTrademarks": "Kagurazaka Yashi",
+        "OriginalFilename": "main.exe",
+        "PrivateBuild": "",
+        "ProductName": "StaticDeployment",
+        "ProductVersion": "1.0.0.0",
+        "SpecialBuild": ""
+    },
+    "VarFileInfo": {
+        "Translation": {
+            "LangID": "0804",
+            "CharsetID": "04B0"
+        }
+    },
+    "IconPath": "icon.ico",
+    "ManifestPath": "main.exe.manifest"
+}

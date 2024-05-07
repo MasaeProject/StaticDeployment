@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -15,6 +16,7 @@ import (
 
 var (
 	osName          string
+	osExecFile      [3]string         = [3]string{} // 0: path, 1: name, 2: ext
 	noChLog         []BackupItem      = []BackupItem{}
 	totalIO         uint              = 0
 	totalCMD        uint              = 0
@@ -32,7 +34,16 @@ func main() {
 	log.Println("StaticDeployment v1.0.0 for", osName)
 	log.Println("https://github.com/MasaeProject/StaticDeployment")
 
-	var configPath = "StaticDeployment.yaml"
+	var osFileNameArr []string = strings.Split(os.Args[0], string(filepath.Separator))
+	osExecFile[0] = strings.Join(osFileNameArr[:len(osFileNameArr)-1], string(filepath.Separator))
+	osExecFile[1] = osFileNameArr[len(osFileNameArr)-1]
+	osFileNameArr = strings.Split(osExecFile[1], ".")
+	if len(osFileNameArr) > 1 {
+		osExecFile[1] = osFileNameArr[0]
+		osExecFile[2] = osFileNameArr[1]
+	}
+
+	var configPath = osExecFile[1] + ".yaml"
 	if len(os.Args) > 1 {
 		configPath = os.Args[1]
 	} else if !Exists(configPath) {

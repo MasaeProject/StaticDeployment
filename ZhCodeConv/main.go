@@ -1,4 +1,5 @@
-package minify
+//go:generate goversioninfo -icon=ico/icon.ico -manifest=main.exe.manifest -arm=true
+package main
 
 import (
 	"crypto/md5"
@@ -9,6 +10,7 @@ import (
 	"hash/crc32"
 	"hash/crc64"
 	"hash/fnv"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -18,7 +20,7 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
+func StaticDeployment_ZhCodeConv(cmd []string) ([2]int, error) {
 	var cmdLen int = len(cmd)
 	var path string = ""
 	var outPath string = ""
@@ -27,7 +29,8 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 	var DataLen [2]int = [2]int{-1, -1}
 	var syms []string = []string{"\"", "'"}
 	if cmdLen <= 1 {
-		path = srcPath
+		// path = srcPath
+		return DataLen, fmt.Errorf("NO PATH")
 	} else if cmdLen >= 2 {
 		path = cmd[1]
 	}
@@ -44,9 +47,9 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 			syms = strings.Split(cmd[4], "")
 		}
 	}
-	if len(outPath) == 0 {
-		outPath = path
-	}
+	// if len(outPath) == 0 {
+	// 	outPath = path
+	// }
 	sourceFileStat, err := os.Stat(path)
 	if err != nil {
 		return DataLen, err
@@ -67,9 +70,13 @@ func InitWithCmd(cmd []string, srcPath string) ([2]int, error) {
 	DataLen[0] = len(data)
 	var newCode []byte = replaceNonAscii(data, mode, reEnc, syms)
 	DataLen[1] = len(newCode)
-	err = os.WriteFile(outPath, newCode, sourceFileStat.Mode())
-	if err != nil {
-		return DataLen, err
+	if len(outPath) == 0 {
+		fmt.Println(string(newCode))
+	} else {
+		err = os.WriteFile(outPath, newCode, sourceFileStat.Mode())
+		if err != nil {
+			return DataLen, err
+		}
 	}
 	return DataLen, nil
 }
@@ -172,37 +179,10 @@ func firstNoNumberS(str string) string {
 	return str
 }
 
-// func main() {
-// 	if len(os.Args) <= 1 {
-// 		log.Println("错误: 必须指定要转换的文件路径。")
-// 		os.Exit(1)
-// 		return
-// 	}
-// 	var outFile string = ""
-// 	if len(os.Args) >= 3 {
-// 		outFile = os.Args[2]
-// 	}
-// 	var mode string = "hex"
-// 	if len(os.Args) >= 4 {
-// 		mode = os.Args[3]
-// 	}
-// 	code, err := os.ReadFile(os.Args[1])
-// 	if err != nil {
-// 		log.Println("错误: 打开文件失败：", err)
-// 		os.Exit(1)
-// 		return
-// 	}
-// 	var newCode string = replaceNonAscii(string(code), mode)
-// 	if len(outFile) == 0 {
-// 		fmt.Println(newCode)
-// 	} else {
-// 		err = os.WriteFile(outFile, []byte(newCode), 0644)
-// 		if err != nil {
-// 			log.Println("错误: 写入文件失败：", err)
-// 			os.Exit(1)
-// 			return
-// 		}
-// 	}
-
-// 	fmt.Println()
-// }
+func main() {
+	dataLen, err := StaticDeployment_ZhCodeConv(os.Args)
+	log.Printf("[%s] %d -> %d  E: %v", os.Args[0], dataLen[0], dataLen[1], err)
+	if err != nil {
+		os.Exit(1)
+	}
+}

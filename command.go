@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -8,9 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
-
-	minify "github.com/MasaeProject/StaticDeployment/plugin/minify"
-	zhcodeconv "github.com/MasaeProject/StaticDeployment/plugin/zhcodeconv"
 )
 
 func runExec(run Run, srcPath string, names Names) bool {
@@ -175,14 +173,14 @@ func runExec(run Run, srcPath string, names Names) bool {
 			} else if cmdLen == 2 {
 				err = RenamePath(srcPath, cmd[1])
 			}
-		case "$ZHCODECONV":
-			var lenCh [2]int
-			lenCh, err = zhcodeconv.InitWithCmd(cmd, srcPath)
-			log.Printf("非 ASCII 变量和函数名转换: %s (%d B -> %d B)\n", srcPath, lenCh[0], lenCh[1])
-		case "$MINIFY":
-			var lenCh [2]int
-			lenCh, err = minify.InitWithCmd(cmd, srcPath)
-			log.Printf("代码压缩: %s (%d B -> %d B)\n", srcPath, lenCh[0], lenCh[1])
+		// case "$ZHCODECONV":
+		// 	var lenCh [2]int
+		// 	lenCh, err = zhcodeconv.InitWithCmd(cmd, srcPath)
+		// 	log.Printf("非 ASCII 变量和函数名转换: %s (%d B -> %d B)\n", srcPath, lenCh[0], lenCh[1])
+		// case "$MINIFY":
+		// 	var lenCh [2]int
+		// 	lenCh, err = minify.InitWithCmd(cmd, srcPath)
+		// 	log.Printf("代码压缩: %s (%d B -> %d B)\n", srcPath, lenCh[0], lenCh[1])
 		case "$UNSET":
 			if cmdLen >= 2 {
 				if v, ok := customVariables[cmd[1]]; ok {
@@ -200,6 +198,9 @@ func runExec(run Run, srcPath string, names Names) bool {
 			}
 			noEmbCmd = true
 		default:
+			if len(cmd[0]) > 1 && cmd[0][0] == '$' {
+				cmd[0] = "." + string(filepath.Separator) + osExecFile[1] + "_" + cmd[0][1:] + "." + osExecFile[2]
+			}
 			noEmbCmd = true
 		}
 		if err != nil {
@@ -228,12 +229,15 @@ func runCMD(cmd []string, dir string, customVariableKey string) bool {
 		ex.Dir = dir
 	}
 	var err error = nil
+	var out bytes.Buffer
+	// var stderr bytes.Buffer
 	if len(customVariableKey) > 0 {
-		var output []byte
-		output, err = ex.CombinedOutput()
+		ex.Stdout = &out
+		// ex.Stderr = &stderr
+		ex.Stderr = os.Stderr
+		err = ex.Run()
 		if err == nil {
-			customVariables[customVariableKey] = string(output)
-			// log.Printf("命令结果保存到变量 %s: %s", customVariableKey, customVariables[customVariableKey])
+			customVariables[customVariableKey] = string(out.Bytes())
 			log.Printf("命令结果保存到变量: %s (%d B)  总变量数: %d", customVariableKey, len(customVariables[customVariableKey]), len(customVariables))
 		}
 	} else {
@@ -242,12 +246,18 @@ func runCMD(cmd []string, dir string, customVariableKey string) bool {
 		err = ex.Run()
 	}
 	if err != nil {
-		log.Println("错误：执行命令失败：", err)
+		log.Println("错误：执行命令失败:", err)
+		// if stderr.Len() > 0 {
+		// 	log.Println(stderr.String())
+		// }
 		return false
 	}
 	if exitError, ok := err.(*exec.ExitError); ok {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
 			fmt.Printf("错误: 命令退出代码: %d\n", status.ExitStatus())
+			// if stderr.Len() > 0 {
+			// 	log.Println(stderr.String())
+			// }
 			return false
 		}
 	} else {

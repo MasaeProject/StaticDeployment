@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=PluginDemo
+GenericName=PluginDemo
+Comment=StaticDeployment 插件演示
+Exec=./PluginDemo -pa
+Terminal=true
+Icon=./PluginDemo.png
+Type=Application
+Categories=Tool
