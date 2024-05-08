@@ -25,6 +25,8 @@ var (
 	customVariables map[string]string = map[string]string{}
 )
 
+const backupExtension = "StaticDeploymentBackup"
+
 func main() {
 	var startTime time.Time = time.Now()
 	var solutions []Solution
@@ -41,6 +43,11 @@ func main() {
 	if len(osFileNameArr) > 1 {
 		osExecFile[1] = osFileNameArr[0]
 		osExecFile[2] = osFileNameArr[1]
+	}
+
+	if len(os.Args) >= 2 && os.Args[1] == "-r" {
+		rollback()
+		return
 	}
 
 	var configPath = osExecFile[1] + ".yaml"

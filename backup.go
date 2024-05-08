@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-const backupExtension = "StaticDeploymentBackup"
-
 var backupCache []BackupItem = []BackupItem{}
 
 func isBackupPath(srcPath string) (bool, string) {

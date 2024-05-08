@@ -237,7 +237,7 @@ func runCMD(cmd []string, dir string, customVariableKey string) bool {
 		ex.Stderr = os.Stderr
 		err = ex.Run()
 		if err == nil {
-			customVariables[customVariableKey] = string(out.Bytes())
+			customVariables[customVariableKey] = out.String()
 			log.Printf("命令结果保存到变量: %s (%d B)  总变量数: %d", customVariableKey, len(customVariables[customVariableKey]), len(customVariables))
 		}
 	} else {
