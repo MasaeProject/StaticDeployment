@@ -21,7 +21,7 @@
     "StringFileInfo": {
         "Comments": "压缩前端代码。",
         "CompanyName": "Kagurazaka Yashi",
-        "FileDescription": "通过字符替换将一个网页生成为多个版本。",
+        "FileDescription": "压缩前端代码。",
         "FileVersion": "1.0.0.0",
         "InternalName": "StaticDeployment_Minify",
         "LegalCopyright": "2024, Kagurazaka Yashi.",

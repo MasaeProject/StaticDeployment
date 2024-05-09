@@ -4,6 +4,9 @@ CD ..
 CD ZhCodeConv
 START build.bat
 CD ..
+CD PluginDemo
+START build.bat
+CD ..
 build.bat
 PAUSE
 CD bin
