@@ -105,7 +105,6 @@ cd bin
 rm -f *.md
 rm -f *.png
 rm -f *.desktop
-openssl sha256 ${name}_*.zip >"${name}_${version}.sha256.txt"
 cd ..
 
 unset version

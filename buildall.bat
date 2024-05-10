@@ -1,13 +1,14 @@
+START /WAIT CMD /C buildclean.bat
 CD Minify
-START build.bat
+START CMD /C build.bat
 CD ..
 CD ZhCodeConv
-START build.bat
+START CMD /C build.bat
 CD ..
 CD PluginDemo
-START build.bat
+START CMD /C build.bat
 CD ..
-build.bat
+START /WAIT CMD /C build.bat
 PAUSE
 CD bin
 for /d %%D in (*) do (

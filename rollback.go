@@ -14,7 +14,7 @@ func rollback() {
 	if len(os.Args) >= 3 {
 		rootDir = os.Args[2]
 	}
-	log.Println("回滚模式: 扫描文件夹: ", rootDir)
+	log.Println("回滚模式: 扫描文件夹:", rootDir)
 	var bak string = "." + backupExtension
 	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		totalDirs[0]++
@@ -23,6 +23,7 @@ func rollback() {
 		}
 		if strings.HasSuffix(info.Name(), bak) {
 			newName := strings.TrimSuffix(path, bak)
+			log.Printf("%s -> %s\n", path, newName)
 			// 檢查不帶bak的檔案/資料夾是否存在
 			if _, err := os.Stat(newName); err == nil {
 				// 如果存在，則刪除
@@ -37,7 +38,6 @@ func rollback() {
 				return fmt.Errorf("无法重命名 %s to %s: %w", path, newName, err)
 			}
 			totalDirs[1]++
-			log.Printf("%s -> %s\n", path, newName)
 		}
 		return nil
 	})

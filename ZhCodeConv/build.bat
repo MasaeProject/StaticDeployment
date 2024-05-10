@@ -104,7 +104,6 @@ COPY %NAME%.desktop bin\%PNAME%_linux-arm64\
 CD bin
 DEL *.md
 DEL *.desktop
-openssl sha256 %NAME%_*.zip >%NAME%_%VERSION%.sha256.txt
 CD ..
 
 SET VERSION=

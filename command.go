@@ -29,6 +29,7 @@ func runExec(run Run, srcPath string, names Names) bool {
 	var cmdsLen int = len(cmds)
 	totalCMD++
 	var dir string = ""
+	var cmdExist = false
 	for cmdsI, cmd := range cmds {
 		var noEmbCmd = false
 		var cmdLen int = len(cmd)
@@ -199,7 +200,13 @@ func runExec(run Run, srcPath string, names Names) bool {
 			noEmbCmd = true
 		default:
 			if len(cmd[0]) > 1 && cmd[0][0] == '$' {
-				cmd[0] = "." + string(filepath.Separator) + osExecFile[1] + "_" + cmd[0][1:] + "." + osExecFile[2]
+				var newCmd string = string(filepath.Separator) + osExecFile[1] + "_" + cmd[0][1:] + "." + osExecFile[2]
+				if Exists(osExecFile[0] + newCmd) {
+					cmd[0] = osExecFile[0] + newCmd
+					cmdExist = true
+				} else {
+					cmd[0] = osExecFile[3] + newCmd
+				}
 			}
 			noEmbCmd = true
 		}
@@ -209,8 +216,13 @@ func runExec(run Run, srcPath string, names Names) bool {
 		} else if !isOK {
 			return false
 		}
-
 		if noEmbCmd {
+			if !cmdExist {
+				if !Exists(cmd[0]) {
+					log.Printf("错误: 要执行的外部命令 %s 不存在: %s\n", cmd[0], err)
+					return false
+				}
+			}
 			if !runCMD(cmd, dir, customVariableKey) {
 				return false
 			}

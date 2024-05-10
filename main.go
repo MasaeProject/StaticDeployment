@@ -16,7 +16,7 @@ import (
 
 var (
 	osName          string
-	osExecFile      [3]string         = [3]string{} // 0: path, 1: name, 2: ext
+	osExecFile      [4]string         = [4]string{} // 0: dir, 1: name, 2: ext, 3: realDir
 	noChLog         []BackupItem      = []BackupItem{}
 	totalIO         uint              = 0
 	totalCMD        uint              = 0
@@ -36,14 +36,7 @@ func main() {
 	log.Println("StaticDeployment v1.0.0 for", osName)
 	log.Println("https://github.com/MasaeProject/StaticDeployment")
 
-	var osFileNameArr []string = strings.Split(os.Args[0], string(filepath.Separator))
-	osExecFile[0] = strings.Join(osFileNameArr[:len(osFileNameArr)-1], string(filepath.Separator))
-	osExecFile[1] = osFileNameArr[len(osFileNameArr)-1]
-	osFileNameArr = strings.Split(osExecFile[1], ".")
-	if len(osFileNameArr) > 1 {
-		osExecFile[1] = osFileNameArr[0]
-		osExecFile[2] = osFileNameArr[1]
-	}
+	getPaths()
 
 	if len(os.Args) >= 2 && os.Args[1] == "-r" {
 		rollback()
@@ -128,6 +121,30 @@ func main() {
 	}
 	duration := time.Since(startTime)
 	log.Printf("处理成功，用时 %.2f 秒。替换项: %d ; 文件操作: %d ; 执行命令: %d (外部命令: %d )\n", duration.Seconds(), totalReplace, totalIO, totalCMD, totalEXE)
+}
+
+func getPaths() {
+	var osFileNameArr []string = strings.Split(os.Args[0], string(filepath.Separator))
+	osExecFile[0] = strings.Join(osFileNameArr[:len(osFileNameArr)-1], string(filepath.Separator))
+	if len(osExecFile[0]) == 0 {
+		osExecFile[0] = "."
+	}
+	osExecFile[1] = osFileNameArr[len(osFileNameArr)-1]
+	osFileNameArr = strings.Split(osExecFile[1], ".")
+	if len(osFileNameArr) > 1 {
+		osExecFile[1] = osFileNameArr[0]
+		osExecFile[2] = osFileNameArr[1]
+	}
+	execPath, err := os.Executable()
+	if err == nil {
+		osExecFile[3] = execPath
+		realPath, err := filepath.EvalSymlinks(execPath)
+		if err == nil {
+			osExecFile[3] = realPath
+		}
+	}
+	osFileNameArr = strings.Split(osExecFile[3], string(filepath.Separator))
+	osExecFile[3] = strings.Join(osFileNameArr[:len(osFileNameArr)-1], string(filepath.Separator))
 }
 
 func fileType(file *os.File) byte {
