@@ -198,9 +198,18 @@ func runExec(run Run, srcPath string, names Names) bool {
 				customVariableKey = cmd[1]
 			}
 			noEmbCmd = true
+		case "$RUNSLN":
+			if cmdLen >= 2 {
+				cmd[0] = osExecFile[3] + string(filepath.Separator) + osExecFile[1] + osExecFile[2]
+				var nowExeArr []string = strings.Split(cmd[1], string(filepath.Separator))
+				var endIndex int = len(nowExeArr) - 1
+				dir = strings.Join(nowExeArr[:endIndex], string(filepath.Separator))
+				cmd[1] = nowExeArr[endIndex]
+				noEmbCmd = true
+			}
 		default:
 			if len(cmd[0]) > 1 && cmd[0][0] == '$' {
-				var newCmd string = string(filepath.Separator) + osExecFile[1] + "_" + cmd[0][1:] + "." + osExecFile[2]
+				var newCmd string = string(filepath.Separator) + osExecFile[1] + "_" + cmd[0][1:] + osExecFile[2]
 				if Exists(osExecFile[0] + newCmd) {
 					cmd[0] = osExecFile[0] + newCmd
 					cmdExist = true

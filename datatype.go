@@ -8,18 +8,18 @@ type Solution struct {
 }
 
 type Project struct {
-	Name    string         `json:"name"`
-	Source  string         `json:"source"`
-	Run     *Run           `json:"run"`
-	PreRun  *Run           `json:"prerun"`
-	Replace *[]ReplaceItem `json:"replace"`
+	Name     string         `json:"name"`
+	Source   *string        `json:"source"`
+	Run      *Run           `json:"run"`
+	PreRun   *Run           `json:"prerun"`
+	Replaces *[]ReplaceItem `json:"replaces"`
 }
 
 type ReplaceItem struct {
-	Name    string          `json:"to"`
-	Replace []ReplaceDetail `json:"replace"`
-	Run     *Run            `json:"run"`
-	PreRun  *Run            `json:"prerun"`
+	Name   string          `json:"to"`
+	Items  []ReplaceDetail `json:"items"`
+	Run    *Run            `json:"run"`
+	PreRun *Run            `json:"prerun"`
 }
 
 type Run struct {
@@ -32,7 +32,7 @@ type Run struct {
 type ReplaceDetail struct {
 	Old string `json:"old"`
 	New string `json:"new"`
-	Num int    `json:"num"`
+	Num *int   `json:"num"`
 }
 
 type FileData struct {

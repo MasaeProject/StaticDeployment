@@ -48,15 +48,18 @@ func main() {
 		configPath = os.Args[1]
 	} else if !Exists(configPath) {
 		log.Println("错误: 必须指定一个配置文件。")
+		os.Exit(1)
 		return
 	}
 	if !Exists(configPath) {
-		log.Println("错误: 配置文件路径不正确。")
+		log.Println("错误: 配置文件路径不正确", configPath)
+		os.Exit(1)
 		return
 	}
 	file, err := os.Open(configPath)
 	if err != nil {
 		log.Println("错误: 打开配置文件", configPath, "失败:", err)
+		os.Exit(1)
 		return
 	}
 	defer file.Close()
@@ -74,12 +77,14 @@ func main() {
 		err = decoder.Decode(&solutions)
 		if err != nil {
 			log.Println("错误: JSON 配置文件解析失败:", err)
+			os.Exit(1)
 			return
 		}
 	} else if fileType == 'y' {
 		content, err := io.ReadAll(file)
 		if err != nil {
 			log.Println("错误: YAML 配置文件读取失败:", err)
+			os.Exit(1)
 			return
 		}
 		yaml.Unmarshal(content, &solutions)
@@ -134,6 +139,9 @@ func getPaths() {
 	if len(osFileNameArr) > 1 {
 		osExecFile[1] = osFileNameArr[0]
 		osExecFile[2] = osFileNameArr[1]
+		if len(osExecFile[2]) > 0 {
+			osExecFile[2] = "." + osExecFile[2]
+		}
 	}
 	execPath, err := os.Executable()
 	if err == nil {

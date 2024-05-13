@@ -2,7 +2,7 @@
   projects: # 项目列表
     - name: p1 # 项目名称
       source: test/data/test-project1/index.html # 要处理的源文件
-      replace: # 替换列表
+      replaces: # 替换列表
         - name: en # 任务名称
           prerun: # 要在替换前运行的命令
             default: # 支持的系统平台，见 [README.md](#run--prerun-系统平台可选项)
@@ -15,7 +15,7 @@
             default: # 支持的系统平台
               - - $BAK # 这里使用内置命令备份了:
                 - $SRC # 源代码文件。
-          replace: # 替换列表
+            items: # 替换项
             - old: Welcome! # 旧字符串
               new: 欢迎! # 新字符串
               num: 1 # 替换几次? 这里是只替换一次
@@ -34,10 +34,9 @@
           prerun:
             default:
               - - $BAK # 这里使用内置命令备份了源代码文件，没有提供第二个参数即为当前文件 `source`
-          replace: # 替换列表
+          items: # 替换列表
             - old: Welcome!
-              new: ようこそ!
-              num: 1
+              new: ようこそ! # 这里省略了替换次数设置，使用默认值 1
             - old: Kagurazaka Yashi
               new: かぐらざか みやび
               num: -1
@@ -48,12 +47,12 @@
               - - $RES # 这里的还原命令没有指定参数，即为还原当前替换任务的所有被变更过的源文件。
     - name: p2 # 项目名称
       source: test/data/test-project2/index.ts
-      replace:
+      replaces:
         - name: en # 任务名称
           prerun:
             default:
               - - $BAK
-          replace:
+          items:
             - old: red
               new: orange
               num: 1
@@ -64,7 +63,7 @@
             default:
               - - tsc
                 - $SRC
-              - - $Minify # 压缩代码
+              - - $Minify # 压缩代码（这是插件，需要确保 Minify 执行文件和主程序在同一文件夹下）
                 - $SRCDIR/$SRCNAME.js # 源文件
                 - $SRCDIR/$SRCNAME.js # 目标文件
                 - js # 代码类型
@@ -83,7 +82,7 @@
           prerun:
             default:
               - - $BAK
-          replace:
+          items:
             - old: red
               new: orange
               num: 1
@@ -111,7 +110,7 @@
           prerun:
             default:
               - - $BAK
-          replace:
+          items:
             - old: red
               new: orange
               num: 1
@@ -150,9 +149,9 @@
       prerun:
         default:
           - - $BAK # 先备份
-      replace: # 替换任务
+      replaces: # 替换任务
         - name: index-html
-          replace:
+          items:
             - old: 网站正在建设中 - 雅诗 TS 网页项目模板
               new: It works!
               num: 1
@@ -161,9 +160,9 @@
       prerun: # 项目运行前执行的命令
         default:
           - - $BAK # 先备份
-      replace:
+      replaces:
         - name: main-js # 任务名称
-          replace:
+          items:
             - old: 它运行了！但这里什么都没有。
               new: It works! But there is nothing here.
               num: 1
@@ -175,7 +174,7 @@
               num: 1
       run: # 项目运行后执行的命令
         default:
-          - - $ZhCodeConv # 源码里有中文变量，进行混淆
+          - - $ZhCodeConv # 源码里有中文变量，进行混淆（这是插件，需要确保 ZhCodeConv 执行文件和主程序在同一文件夹下）
             - $SRC # 源文件
             - crc32*32 # 用 md5 ，迭代 32 次
             - $SRC # 目标文件，这里覆盖了源文件
@@ -195,9 +194,9 @@
       prerun:
         default:
           - - $BAK
-      replace:
+      replaces:
         - name: index-html
-          replace:
+          items:
             - old: 网站正在建设中 - 雅诗 TS 网页项目模板
               new: 它运行了！
               num: 1
@@ -206,9 +205,9 @@
       prerun:
         default:
           - - $BAK
-      replace:
+      replaces:
         - name: main-js
-          replace:
+          items:
             - old: 请参考源码文件中的注释和 README.md 开始编辑吧！
               new: StaticDeployment 运行成功！
               num: 1
@@ -237,9 +236,9 @@
       prerun:
         default:
           - - $BAK
-      replace:
+      replaces:
         - name: index-html
-          replace:
+          items:
             - old: 网站正在建设中 - 雅诗 TS 网页项目模板
               new: それは動作します！
               num: 1
@@ -248,9 +247,9 @@
       prerun:
         default:
           - - $BAK
-      replace:
+      replaces:
         - name: main-js
-          replace:
+          items:
             - old: 它运行了！但这里什么都没有。
               new: それは動作します！ しかし、ここには何もありません。
               num: 1
