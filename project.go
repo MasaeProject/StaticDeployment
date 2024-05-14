@@ -149,6 +149,23 @@ func runReplaceDetail(replace []ReplaceDetail, f FileData) FileData {
 			for key, val := range customVariables {
 				newStr = strings.ReplaceAll(newStr, "$"+key, val)
 			}
+			if len(newStr) > 8 && newStr[:8] == "$IMPORT=" {
+				var importFiles string = newStr[8:]
+				newStr = ""
+				var importFilesList []string = strings.Split(importFiles, ",")
+				for _, importFile := range importFilesList {
+					importFile = CleanPath(importFile)
+					totalIO++
+					loadFileText, err := os.ReadFile(importFile)
+					if err != nil {
+						log.Printf("错误：导入文件 %s 失败：%s\n", importFile, err)
+						os.Exit(1)
+					} else {
+						log.Printf("已加载文件 %s (%d B)\n", importFile, len(loadFileText))
+						newStr += string(loadFileText)
+					}
+				}
+			}
 			var count int = strings.Count(newString, detail.Old)
 			var num = 1
 			if detail.Num != nil {
