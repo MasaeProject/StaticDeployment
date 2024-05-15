@@ -245,7 +245,7 @@ func runCMD(cmd []string, dir string, customVariableKey string) bool {
 		cmd = cmd[2:]
 	}
 	totalEXE++
-	ex := exec.Command(cmd[0], cmd[1:]...)
+	var ex *exec.Cmd = exec.Command(cmd[0], cmd[1:]...)
 	if len(dir) > 0 {
 		ex.Dir = dir
 	}

@@ -26,11 +26,11 @@ func StaticDeployment_ZhCodeConv(cmd []string) ([2]int, error) {
 	var outPath string = ""
 	var mode string = "hex"
 	var reEnc int = 1
-	var DataLen [2]int = [2]int{-1, -1}
+	var dataLen [2]int = [2]int{-1, -1}
 	var syms []string = []string{"\"", "'"}
 	if cmdLen <= 1 {
 		// path = srcPath
-		return DataLen, fmt.Errorf("NO PATH")
+		return dataLen, fmt.Errorf("NO PATH")
 	} else if cmdLen >= 2 {
 		path = cmd[1]
 	}
@@ -52,11 +52,11 @@ func StaticDeployment_ZhCodeConv(cmd []string) ([2]int, error) {
 	// }
 	sourceFileStat, err := os.Stat(path)
 	if err != nil {
-		return DataLen, err
+		return dataLen, err
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return DataLen, err
+		return dataLen, err
 	}
 	var modeArr []string = strings.Split(mode, "*")
 	if len(modeArr) > 1 {
@@ -67,18 +67,18 @@ func StaticDeployment_ZhCodeConv(cmd []string) ([2]int, error) {
 			reEnc = 1
 		}
 	}
-	DataLen[0] = len(data)
+	dataLen[0] = len(data)
 	var newCode []byte = replaceNonAscii(data, mode, reEnc, syms)
-	DataLen[1] = len(newCode)
+	dataLen[1] = len(newCode)
 	if len(outPath) == 0 {
 		fmt.Println(string(newCode))
 	} else {
 		err = os.WriteFile(outPath, newCode, sourceFileStat.Mode())
 		if err != nil {
-			return DataLen, err
+			return dataLen, err
 		}
 	}
-	return DataLen, nil
+	return dataLen, nil
 }
 
 func isEnglishLetter(r rune) bool {

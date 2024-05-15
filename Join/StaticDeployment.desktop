@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=StaticDeployment_Join
+GenericName=StaticDeployment_Join
+Comment=合并一个或多个文本文件。
+Exec=./StaticDeployment_Join -pa
+Terminal=true
+Icon=./StaticDeployment_Join.png
+Type=Application
+Categories=Tool

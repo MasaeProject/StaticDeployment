@@ -31,10 +31,10 @@ func StaticDeployment_Minify(cmd []string) ([2]int, error) {
 	var path string = ""
 	var outPath string = ""
 	var mode string = ""
-	var DataLen [2]int = [2]int{-1, -1}
+	var dataLen [2]int = [2]int{-1, -1}
 	if cmdLen <= 1 {
 		// path = srcPath
-		return DataLen, fmt.Errorf("NO PATH")
+		return dataLen, fmt.Errorf("NO PATH")
 	} else if cmdLen >= 2 {
 		path = cmd[1]
 	}
@@ -58,27 +58,27 @@ func StaticDeployment_Minify(cmd []string) ([2]int, error) {
 	}
 	sourceFileStat, err := os.Stat(path)
 	if err != nil {
-		return DataLen, err
+		return dataLen, err
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return DataLen, err
+		return dataLen, err
 	}
-	DataLen[0] = len(data)
+	dataLen[0] = len(data)
 	newCode, err := compressALL(string(data), mode)
 	if err != nil {
-		return DataLen, err
+		return dataLen, err
 	}
-	DataLen[1] = len(newCode)
+	dataLen[1] = len(newCode)
 	if len(outPath) == 0 {
 		fmt.Println(string(newCode))
 	} else {
 		err = os.WriteFile(outPath, []byte(newCode), sourceFileStat.Mode())
 		if err != nil {
-			return DataLen, err
+			return dataLen, err
 		}
 	}
-	return DataLen, nil
+	return dataLen, nil
 }
 
 func compressALL(htmlContent string, mediatype string) (string, error) {
