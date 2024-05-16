@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -106,6 +107,16 @@ func main() {
 			log.Printf("解决方案 %d / %d : %s 处理完毕，用时 %.2f 秒。\n", i+1, solutionLen, solution.Name, time.Since(sTime).Seconds())
 		} else {
 			log.Printf("解决方案 %d / %d : %s 处理失败！用时 %.2f 秒。\n", i+1, solutionLen, solution.Name, time.Since(sTime).Seconds())
+			log.Println("自动进入恢复模式还原文件。")
+			var cmdPath string = osExecFile[3] + string(filepath.Separator) + osExecFile[1] + osExecFile[2]
+			var ex *exec.Cmd = exec.Command(cmdPath, "-r")
+			ex.Stdout = os.Stdout
+			ex.Stderr = os.Stderr
+			err = ex.Run()
+			if err != nil {
+				log.Println("错误: 未能进入恢复模式:", err)
+				os.Exit(1)
+			}
 			return
 		}
 	}
@@ -137,11 +148,13 @@ func getPaths() {
 	osExecFile[1] = osFileNameArr[len(osFileNameArr)-1]
 	osFileNameArr = strings.Split(osExecFile[1], ".")
 	if len(osFileNameArr) > 1 {
+		if len(osFileNameArr[1]) == 0 && osName == "windows" {
+			osFileNameArr[1] = ".exe"
+		} else if len(osFileNameArr[1]) > 0 {
+			osFileNameArr[1] = "." + osFileNameArr[1]
+		}
 		osExecFile[1] = osFileNameArr[0]
 		osExecFile[2] = osFileNameArr[1]
-		if len(osExecFile[2]) > 0 {
-			osExecFile[2] = "." + osExecFile[2]
-		}
 	}
 	execPath, err := os.Executable()
 	if err == nil {
