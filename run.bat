@@ -2,6 +2,9 @@ SET NAME=StaticDeployment
 SET CGO_ENABLED=1
 SET GOFLAGS=-buildvcs=false
 DEL %NAME%*.exe
+CD Join
+go build -o ..\%NAME%_Join.exe
+CD ..
 CD minify
 go build -o ..\%NAME%_Minify.exe
 CD ..

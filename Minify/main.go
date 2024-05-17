@@ -95,7 +95,7 @@ func compressALL(htmlContent string, mediatype string) (string, error) {
 
 func main() {
 	dataLen, err := StaticDeployment_Minify(os.Args)
-	log.Printf("[%s] %d -> %d  E: %v", os.Args[0], dataLen[0], dataLen[1], err)
+	log.Printf("[%s] %d -> %d (E:%v)", os.Args[0], dataLen[0], dataLen[1], err)
 	if err != nil {
 		os.Exit(1)
 	}

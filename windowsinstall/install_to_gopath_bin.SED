@@ -22,26 +22,24 @@ UserQuietInstCmd=%UserQuietInstCmd%
 SourceFiles=SourceFiles
 [Strings]
 InstallPrompt=
-DisplayLicense=P:\go\src\github.com\MasaeProject\StaticDeployment\bin\StaticDeployment_windows-x64\README.ansi.md
+DisplayLicense=B:\StaticDeployment_windows-x64\README.md
 FinishMessage=Installed to (GOPATH)\bin .
-TargetName=P:\go\src\github.com\MasaeProject\StaticDeployment\bin\StaticDeployment_windows-x64\StaticDeploymentInstall.exe
+TargetName=B:\StaticDeployment_windows-x64\StaticDeploymentInstall.exe
 FriendlyName=StaticDeployment
 AppLaunched=cmd.exe /C move_to_gopath_bin.bat
 PostInstallCmd=<None>
 AdminQuietInstCmd=
 UserQuietInstCmd=
-FILE0="README.md"
+FILE0="move_to_gopath_bin.bat"
 FILE1="StaticDeployment.exe"
-FILE2="StaticDeployment_Minify.exe"
-FILE3="StaticDeployment_PluginDemo.exe"
+FILE2="StaticDeployment_Join.exe"
+FILE3="StaticDeployment_Minify.exe"
 FILE4="StaticDeployment_ZhCodeConv.exe"
-FILE5="move_to_gopath_bin.bat"
 [SourceFiles]
-SourceFiles0=P:\go\src\github.com\MasaeProject\StaticDeployment\bin\StaticDeployment_windows-x64\
+SourceFiles0=B:\StaticDeployment_windows-x64\
 [SourceFiles0]
 %FILE0%=
 %FILE1%=
 %FILE2%=
 %FILE3%=
 %FILE4%=
-%FILE5%=

@@ -162,7 +162,7 @@ func hashesCrypto(mode string, cache []byte) []byte {
 	}
 	_, err := hasher.Write(cache)
 	if err != nil {
-		fmt.Println("ERROR: hasher.Write error:", err)
+		log.Println("ERROR: hasher.Write error:", err)
 		return cache
 	}
 	var hash []byte = hasher.Sum(nil)
@@ -181,7 +181,7 @@ func firstNoNumberS(str string) string {
 
 func main() {
 	dataLen, err := StaticDeployment_ZhCodeConv(os.Args)
-	log.Printf("[%s] %d -> %d  E: %v", os.Args[0], dataLen[0], dataLen[1], err)
+	log.Printf("[%s] %d -> %d (E:%v)", os.Args[0], dataLen[0], dataLen[1], err)
 	if err != nil {
 		os.Exit(1)
 	}
