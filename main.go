@@ -34,8 +34,6 @@ func main() {
 	// var projects []Project
 
 	osName = runtime.GOOS
-	log.Println("StaticDeployment v1.0.0 for", osName)
-	log.Println("https://github.com/MasaeProject/StaticDeployment")
 
 	getPaths()
 
@@ -43,6 +41,9 @@ func main() {
 		rollback()
 		return
 	}
+
+	log.Println("StaticDeployment v1.0.0 for", osName)
+	log.Println("https://github.com/MasaeProject/StaticDeployment")
 
 	var configPath = osExecFile[1] + ".yaml"
 	if len(os.Args) > 1 {
@@ -52,6 +53,12 @@ func main() {
 		os.Exit(1)
 		return
 	}
+
+	var noRollback bool = false
+	if len(os.Args) > 2 && os.Args[2] == "-nr" {
+		noRollback = true
+	}
+
 	if !Exists(configPath) {
 		log.Println("错误: 配置文件路径不正确", configPath)
 		os.Exit(1)
@@ -107,16 +114,20 @@ func main() {
 			log.Printf("解决方案 %d / %d : %s 处理完毕，用时 %.2f 秒。\n", i+1, solutionLen, solution.Name, time.Since(sTime).Seconds())
 		} else {
 			log.Printf("解决方案 %d / %d : %s 处理失败！用时 %.2f 秒。\n", i+1, solutionLen, solution.Name, time.Since(sTime).Seconds())
-			log.Println("自动进入恢复模式还原文件。")
-			var cmdPath string = osExecFile[3] + string(filepath.Separator) + osExecFile[1] + osExecFile[2]
-			var ex *exec.Cmd = exec.Command(cmdPath, "-r")
-			ex.Stdout = os.Stdout
-			ex.Stderr = os.Stderr
-			err = ex.Run()
-			if err != nil {
-				log.Println("错误: 未能进入恢复模式:", err)
-				os.Exit(1)
+			if !noRollback {
+				log.Println("自动进入恢复模式还原文件。")
+				var cmdPath string = osExecFile[3] + string(filepath.Separator) + osExecFile[1] + osExecFile[2]
+				var ex *exec.Cmd = exec.Command(cmdPath, "-r")
+				ex.Stdout = os.Stdout
+				ex.Stderr = os.Stderr
+				err = ex.Run()
+				if err != nil {
+					log.Println("错误: 未能进入恢复模式:", err)
+					os.Exit(1)
+				}
 			}
+			log.Println("任务失败。")
+			os.Exit(1)
 			return
 		}
 	}

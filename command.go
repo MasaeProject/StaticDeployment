@@ -204,7 +204,7 @@ func runExec(run Run, srcPath string, names Names) bool {
 				var nowExeArr []string = strings.Split(cmd[1], string(filepath.Separator))
 				var endIndex int = len(nowExeArr) - 1
 				dir = strings.Join(nowExeArr[:endIndex], string(filepath.Separator))
-				cmd[1] = nowExeArr[endIndex]
+				cmd = []string{cmd[0], nowExeArr[endIndex], "-nr"}
 				noEmbCmd = true
 			}
 		default:
