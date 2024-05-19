@@ -29,7 +29,7 @@ func runExec(run Run, srcPath string, names Names) bool {
 	var cmdsLen int = len(cmds)
 	totalCMD++
 	var dir string = ""
-	var cmdExist = false
+	// var cmdExist = false
 	for cmdsI, cmd := range cmds {
 		var noEmbCmd = false
 		var cmdLen int = len(cmd)
@@ -212,7 +212,7 @@ func runExec(run Run, srcPath string, names Names) bool {
 				var newCmd string = string(filepath.Separator) + osExecFile[1] + "_" + cmd[0][1:] + osExecFile[2]
 				if Exists(osExecFile[0] + newCmd) {
 					cmd[0] = osExecFile[0] + newCmd
-					cmdExist = true
+					// cmdExist = true
 				} else {
 					cmd[0] = osExecFile[3] + newCmd
 				}
@@ -226,12 +226,15 @@ func runExec(run Run, srcPath string, names Names) bool {
 			return false
 		}
 		if noEmbCmd {
-			if !cmdExist {
-				if !Exists(cmd[0]) {
-					log.Printf("错误: 要执行的外部命令 %s 不存在: %s\n", cmd[0], err)
-					return false
-				}
+			if len(customVariableKey) > 0 {
+				cmd = cmd[2:]
 			}
+			// if !cmdExist {
+			// 	if !Exists(cmd[0]) {
+			// 		log.Printf("错误: 要执行的外部命令 %s 不存在: %s\n", cmd[0], err)
+			// 		return false
+			// 	}
+			// }
 			if !runCMD(cmd, dir, customVariableKey) {
 				return false
 			}
@@ -241,16 +244,13 @@ func runExec(run Run, srcPath string, names Names) bool {
 }
 
 func runCMD(cmd []string, dir string, customVariableKey string) bool {
-	if len(customVariableKey) > 0 {
-		cmd = cmd[2:]
-	}
 	totalEXE++
 	var ex *exec.Cmd = exec.Command(cmd[0], cmd[1:]...)
 	if len(dir) > 0 {
 		ex.Dir = dir
 	}
 	var err error = nil
-	var out bytes.Buffer
+	var out bytes.Buffer = bytes.Buffer{}
 	// var stderr bytes.Buffer
 	if len(customVariableKey) > 0 {
 		ex.Stdout = &out
@@ -272,6 +272,13 @@ func runCMD(cmd []string, dir string, customVariableKey string) bool {
 		// 	log.Println(stderr.String())
 		// }
 		return false
+	} else if len(customVariableKey) > 0 {
+		var outStr string = out.String()
+		if len(outStr) == 0 {
+			log.Println("警告: 命令没有输出，变量为空。")
+		} else {
+			log.Printf("已设置变量 %s 为: %s (%d)", customVariableKey, trimString(outStr), len(outStr))
+		}
 	}
 	if exitError, ok := err.(*exec.ExitError); ok {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {

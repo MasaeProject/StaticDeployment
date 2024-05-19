@@ -180,6 +180,9 @@ func runReplaceDetail(replace []ReplaceDetail, f FileData) FileData {
 				}
 			}
 			log.Printf("替换项 %d / %d : %s -> %s (%d -> %d)", i+1, replaceLen, trimString(detail.Old), trimString(newStr), len(detail.Old), len(newStr))
+			if detail.Old == newStr {
+				log.Println("警告: 找不到替换项或替换前后内容一样")
+			}
 			totalReplace = totalReplace + uint(count)
 		}
 	}
