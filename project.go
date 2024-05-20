@@ -89,10 +89,6 @@ func runProject(project Project, names Names) bool {
 
 func runJob(item ReplaceItem, f FileData, names Names) bool {
 	names.Replace = item.Name
-	if len(item.Items) == 0 {
-		log.Println("警告: 没有指定替换方案")
-	}
-	f = runReplaceDetail(item.Items, f)
 	// var bak string = f.Path + "." + backupExtension
 	if item.PreRun != nil {
 		log.Println("运行替换", item.Name, "的预处理命令:")
@@ -100,6 +96,10 @@ func runJob(item ReplaceItem, f FileData, names Names) bool {
 			return false
 		}
 	}
+	if len(item.Items) == 0 {
+		log.Println("警告: 没有指定替换方案")
+	}
+	f = runReplaceDetail(item.Items, f)
 	// var err error = copyFile(f.Path, bak)
 	// if err != nil {
 	// 	log.Printf("错误: 备份文件 %s 到 %s 失败: %s\n", f.Path, bak, err)
@@ -184,6 +184,7 @@ func runReplaceDetail(replace []ReplaceDetail, f FileData) FileData {
 				log.Println("警告: 找不到替换项或替换前后内容一样")
 			}
 			totalReplace = totalReplace + uint(count)
+			// log.Printf("newString =  %s \n", newString)
 		}
 	}
 	f.NewString = newString

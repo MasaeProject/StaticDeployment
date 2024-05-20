@@ -259,7 +259,7 @@ func runCMD(cmd []string, dir string, customVariableKey string) bool {
 		err = ex.Run()
 		if err == nil {
 			customVariables[customVariableKey] = out.String()
-			log.Printf("命令结果保存到变量: %s (%d B)  总变量数: %d", customVariableKey, len(customVariables[customVariableKey]), len(customVariables))
+			// log.Printf("命令结果保存到变量: %s (%d B)  总变量数: %d", customVariableKey, len(customVariables[customVariableKey]), len(customVariables))
 		}
 	} else {
 		ex.Stdout = os.Stdout
@@ -277,7 +277,7 @@ func runCMD(cmd []string, dir string, customVariableKey string) bool {
 		if len(outStr) == 0 {
 			log.Println("警告: 命令没有输出，变量为空。")
 		} else {
-			log.Printf("已设置变量 %s 为: %s (%d)", customVariableKey, trimString(outStr), len(outStr))
+			log.Printf("已设置变量 %s 为: %s (%d B)  总变量数: %d", customVariableKey, trimString(outStr), len(outStr), len(customVariables))
 		}
 	}
 	if exitError, ok := err.(*exec.ExitError); ok {
