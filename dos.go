@@ -9,7 +9,24 @@ import (
 	"strings"
 )
 
+func getAbsolutePath(relativePath string) (string, error) {
+	absolutePath, err := filepath.Abs(relativePath)
+	if err != nil {
+		return "", err
+	}
+	return absolutePath, nil
+}
+
 func copyFile(src string, dst string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	dst, err = getAbsolutePath(dst)
+	if err != nil {
+		return err
+	}
 	log.Printf("复制文件: %s -> %s", src, dst) // CP
 	totalIO++
 	sourceFileStat, err := os.Stat(src)
@@ -41,6 +58,15 @@ func copyFile(src string, dst string) error {
 }
 
 func copyDirectory(src string, dst string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	dst, err = getAbsolutePath(dst)
+	if err != nil {
+		return err
+	}
 	log.Printf("复制文件夹: %s -> %s", src, dst) // CPDIR
 	totalIO++
 	sourceInfo, err := os.Stat(src)
@@ -104,6 +130,15 @@ func Copy(src string, dst string) error {
 }
 
 func moveFile(src string, dst string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	dst, err = getAbsolutePath(dst)
+	if err != nil {
+		return err
+	}
 	log.Printf("移动文件: %s -> %s", src, dst) // MV
 	totalIO++
 	sourceFileStat, err := os.Stat(src)
@@ -118,6 +153,15 @@ func moveFile(src string, dst string) error {
 }
 
 func moveDirectory(src string, dst string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	dst, err = getAbsolutePath(dst)
+	if err != nil {
+		return err
+	}
 	log.Printf("移动文件夹: %s -> %s", src, dst) // MVDIR
 	totalIO++
 	sourceInfo, err := os.Stat(src)
@@ -169,6 +213,15 @@ func Move(src string, dst string) error {
 }
 
 func moveFileSecure(src string, dst string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	dst, err = getAbsolutePath(dst)
+	if err != nil {
+		return err
+	}
 	log.Printf("移动文件(复制): %s -> %s", src, dst) // SMV
 	totalIO++
 	if err := copyFile(src, dst); err != nil {
@@ -178,6 +231,15 @@ func moveFileSecure(src string, dst string) error {
 }
 
 func moveDirectorySecure(src string, dst string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	dst, err = getAbsolutePath(dst)
+	if err != nil {
+		return err
+	}
 	log.Printf("移动文件夹(复制): %s -> %s", src, dst) // SMVDIR
 	totalIO++
 	if err := copyDirectory(src, dst); err != nil {
@@ -208,20 +270,30 @@ func MoveSecure(src string, dst string) error {
 	}
 }
 
-func removeFile(filePath string) error {
-	log.Printf("删除文件: %s", filePath) // RM
+func removeFile(src string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	log.Printf("删除文件: %s", src) // RM
 	totalIO++
-	err := os.Remove(filePath)
+	err = os.Remove(src)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 	return nil
 }
 
-func removeDirectory(dirPath string) error {
-	log.Printf("删除文件夹: %s", dirPath) // RMDIR
+func removeDirectory(src string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	log.Printf("删除文件夹: %s", src) // RMDIR
 	totalIO++
-	err := os.RemoveAll(dirPath)
+	err = os.RemoveAll(src)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
@@ -245,10 +317,15 @@ func Remove(path string) error {
 	}
 }
 
-func RemoveFileSecure(filename string) error {
-	log.Printf("安全删除文件: %s", filename) // SRM
+func RemoveFileSecure(src string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	log.Printf("安全删除文件: %s", src) // SRM
 	totalIO++
-	file, err := os.OpenFile(filename, os.O_WRONLY, 0)
+	file, err := os.OpenFile(src, os.O_WRONLY, 0)
 	if err != nil {
 		return err
 	}
@@ -273,13 +350,18 @@ func RemoveFileSecure(filename string) error {
 		return err
 	}
 
-	return os.Remove(filename)
+	return os.Remove(src)
 }
 
-func RemoveDirectorySecure(dirPath string) error {
-	log.Printf("安全删除文件夹: %s", dirPath) // SRMDIR
+func RemoveDirectorySecure(src string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	log.Printf("安全删除文件夹: %s", src) // SRMDIR
 	totalIO++
-	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -297,7 +379,7 @@ func RemoveDirectorySecure(dirPath string) error {
 		return err
 	}
 
-	return os.Remove(dirPath)
+	return os.Remove(src)
 }
 
 func RemoveSecure(path string) error {
@@ -316,9 +398,18 @@ func RemoveSecure(path string) error {
 }
 
 func RenamePath(oldPath, newPath string) error {
+	var err error
+	oldPath, err = getAbsolutePath(oldPath)
+	if err != nil {
+		return err
+	}
+	newPath, err = getAbsolutePath(newPath)
+	if err != nil {
+		return err
+	}
 	log.Printf("重命名: %s -> %s", oldPath, newPath) // REN
 	totalIO++
-	err := os.Rename(oldPath, newPath)
+	err = os.Rename(oldPath, newPath)
 	if err != nil {
 		return err
 	}
@@ -344,10 +435,15 @@ func Exists(path string) bool {
 	return err == nil
 }
 
-func MakeDirectory(path string) error {
-	log.Printf("创建文件夹: %s", path) // MD
+func MakeDirectory(src string) error {
+	var err error
+	src, err = getAbsolutePath(src)
+	if err != nil {
+		return err
+	}
+	log.Printf("创建文件夹: %s", src) // MD
 	totalIO++
-	var pathPart string = path
+	var pathPart string = src
 	for {
 		if Exists(pathPart) {
 			break
@@ -362,5 +458,5 @@ func MakeDirectory(path string) error {
 	if err != nil {
 		return err
 	}
-	return os.MkdirAll(path, sourceFileStat.Mode())
+	return os.MkdirAll(src, sourceFileStat.Mode())
 }
