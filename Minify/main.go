@@ -26,6 +26,8 @@ var mapMediaType map[string]string = map[string]string{
 	"xml":  "application/xml",
 }
 
+var title string = "[代码压缩器] "
+
 func StaticDeployment_Minify(cmd []string) ([2]int, error) {
 	var cmdLen int = len(cmd)
 	var path string = ""
@@ -34,7 +36,7 @@ func StaticDeployment_Minify(cmd []string) ([2]int, error) {
 	var dataLen [2]int = [2]int{-1, -1}
 	if cmdLen <= 1 {
 		// path = srcPath
-		return dataLen, fmt.Errorf("NO PATH")
+		return dataLen, fmt.Errorf(title + "请输入文件路径")
 	} else if cmdLen >= 2 {
 		path = cmd[1]
 	}
@@ -95,7 +97,7 @@ func compressALL(htmlContent string, mediatype string) (string, error) {
 
 func main() {
 	dataLen, err := StaticDeployment_Minify(os.Args)
-	log.Printf("[%s] %d -> %d (E:%v)", os.Args[0], dataLen[0], dataLen[1], err)
+	log.Printf("%s%d -> %d (E:%v)", title, dataLen[0], dataLen[1], err)
 	if err != nil {
 		os.Exit(1)
 	}

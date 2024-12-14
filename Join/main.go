@@ -12,11 +12,13 @@ import (
 	"strings"
 )
 
+var title string = "[文件合并器] "
+
 func StaticDeployment_Join(cmd []string) ([]int64, error) {
 	var cmdLen int = len(cmd)
 	var dataLen []int64 = make([]int64, cmdLen)
 	if cmdLen <= 2 {
-		return dataLen, fmt.Errorf("NO PATH")
+		return dataLen, fmt.Errorf(title + "需要输入至少两个文件路径")
 	}
 	var destPath string = os.Args[1]
 
@@ -75,7 +77,7 @@ func main() {
 	}
 	var total string = dataLenStrArr[dataLenLen-1]
 	dataLenStrArr[0] = strings.Join(dataLenStrArr[:dataLenLen-1], " + ")
-	log.Printf("[%s] %s = %s B  (E:%v)", os.Args[0], dataLenStrArr[0], total, err)
+	log.Printf("%s%s = %s B  (E:%v)", title, dataLenStrArr[0], total, err)
 	if err != nil {
 		os.Exit(1)
 		return

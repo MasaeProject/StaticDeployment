@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+var title string = "[示例插件] "
+
 func main() {
 	// 插件示例
 
@@ -27,11 +29,11 @@ func main() {
 
 	// - 如果需要输出日志信息，使用 `log` 包，内容会直接进行输出；
 	// - 如果需要输出返回值，使用 `fmt` 包，内容会被主程序收取（如果用户在脚本中要求）。
-	log.Println(os.Args[0], "测试插件开始运行……")
+	log.Println(title + "测试插件开始运行……")
 
 	// 当本插件需要问题时的处理方式
 	if len(os.Args) <= 1 {
-		log.Println(os.Args[0], "错误: 未指定参数。")
+		log.Println(title + "错误: 未指定参数。")
 		// 如果本插件执行失败，退出时需返回 > 0 的值。主程序遇到非 0 的返回值会停止执行脚本。
 		os.Exit(1)
 		return
@@ -68,7 +70,7 @@ func main() {
 		var path = os.Args[2]
 		data, err := os.ReadFile(path)
 		if err != nil {
-			log.Println(os.Args[0], "错误: 无法读取文件", path, err)
+			log.Println(title+"错误: 无法读取文件", path, err)
 			os.Exit(1)
 			return
 		}
@@ -82,7 +84,7 @@ func main() {
 		// 例如，将 HTML 代码片段写入到文件中
 		err := os.WriteFile(path, []byte(html), 0644)
 		if err != nil {
-			log.Println(os.Args[0], "错误: 无法写入文件", path, err)
+			log.Println(title+"错误: 无法写入文件", path, err)
 			os.Exit(1)
 			return
 		}

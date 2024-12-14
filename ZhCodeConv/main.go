@@ -20,6 +20,8 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
+var title string = "[代码名称转换器] "
+
 func StaticDeployment_ZhCodeConv(cmd []string) ([2]int, error) {
 	var cmdLen int = len(cmd)
 	var path string = ""
@@ -30,7 +32,7 @@ func StaticDeployment_ZhCodeConv(cmd []string) ([2]int, error) {
 	var syms []string = []string{"\"", "'"}
 	if cmdLen <= 1 {
 		// path = srcPath
-		return dataLen, fmt.Errorf("NO PATH")
+		return dataLen, fmt.Errorf(title + "请输入文件路径")
 	} else if cmdLen >= 2 {
 		path = cmd[1]
 	}
@@ -162,7 +164,7 @@ func hashesCrypto(mode string, cache []byte) []byte {
 	}
 	_, err := hasher.Write(cache)
 	if err != nil {
-		log.Println("ERROR: hasher.Write error:", err)
+		log.Println(title+"[错误] hasher.Write:", err)
 		return cache
 	}
 	var hash []byte = hasher.Sum(nil)
@@ -181,7 +183,7 @@ func firstNoNumberS(str string) string {
 
 func main() {
 	dataLen, err := StaticDeployment_ZhCodeConv(os.Args)
-	log.Printf("[%s] %d -> %d (E:%v)", os.Args[0], dataLen[0], dataLen[1], err)
+	log.Printf(title+"%d -> %d (E:%v)", dataLen[0], dataLen[1], err)
 	if err != nil {
 		os.Exit(1)
 	}
